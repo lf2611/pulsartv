@@ -1,10 +1,1 @@
-PULSAR TV — INSTALACIÓN COMO PWA
 
-1. Subí TODOS los archivos y carpetas de este paquete a un sitio web servido por HTTPS (por ejemplo, GitHub Pages, Netlify o tu propio servidor).
-2. Abrí la URL publicada en Chrome de Android.
-3. Menú (⋮) > Instalar aplicación / Agregar a pantalla principal.
-4. La app se abrirá como ventana independiente del navegador.
-
-IMPORTANTE: abrir index.html directamente desde archivos (file://) NO permite instalar una PWA: el manifest y service worker necesitan HTTPS o localhost.
-Esto es una PWA, NO un APK. Para APK hay que empaquetarla aparte.
-Los canales IPTV requieren conexión a internet. El service worker almacena solo la interfaz, no los videos ni las listas externas.
