@@ -300,6 +300,16 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
 #pClose{position:static;flex:none;width:2.7rem;height:2.7rem;border:0;border-radius:.55rem;background:rgba(255,255,255,.13);color:white;font-size:2.2rem;font-weight:800;line-height:1;cursor:pointer;text-shadow:0 1px 4px #000}
 #pClose:hover,#pClose:focus-visible{background:rgba(255,255,255,.24)}
 .more-languages{margin-top:.55rem;text-align:center!important;color:#c7dcff!important;font-weight:650!important;border-top:1px solid rgba(255,255,255,.18)!important}
+
+/* Metadatos discretos y ficha de canal */
+.pick .channel-meta{display:block;margin-top:.18rem;color:#b7c0ce;font-size:.72rem;font-weight:400;line-height:1.3;white-space:normal;overflow-wrap:anywhere;text-shadow:0 1px 2px #0009}
+.row .info-btn{flex:none;background:transparent!important;border:0!important;box-shadow:none!important;color:#e4eaf3;font-size:1.3rem;font-weight:500;width:2rem;height:2.5rem;padding:0;display:grid;place-items:center;text-shadow:0 1px 4px #000;opacity:.88}
+.row .info-btn:hover,.row .info-btn:focus-visible{color:white;opacity:1;filter:brightness(1.2);background:transparent!important}
+#channelInfoModal .info-grid{display:grid;grid-template-columns:minmax(5.5rem,auto) minmax(0,1fr);gap:.6rem .9rem;font-size:.88rem;align-items:start}
+#channelInfoModal .info-label{color:#aeb9ca}
+#channelInfoModal .info-value{min-width:0;overflow-wrap:anywhere;user-select:text}
+#channelInfoModal .info-value a{color:#a9cbff}
+#nowMeta{font-size:.86rem;font-weight:400;color:rgba(235,239,247,.85);line-height:1.35;text-shadow:0 1px 4px #000,0 2px 7px #000}
 </style>
 </head>
 <body>
@@ -376,6 +386,10 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
  <div id="status" class="hint" role="status"></div>
 </section></div>
 
+<div class="mwrap" id="channelInfoModal"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="channelInfoTitle">
+<div class="mhead"><h2 id="channelInfoTitle">Información del canal</h2><button class="ib" id="closeChannelInfo" title="Cerrar" aria-label="Cerrar">✕</button></div>
+<div class="info-grid" id="channelInfoContent"></div>
+</section></div>
 <div id="prog" hidden></div>
 <div id="toast" role="status"></div>
 
@@ -503,7 +517,7 @@ function parseM3U(text){
    const k=line.lastIndexOf(','),a=line.slice(0,k<0?line.length:k);
    const g=n=>{const m=a.match(new RegExp('(?:^|\\s)'+n+'="([^"]*)"','i'));return m?m[1].trim():''};
    const cats=g('group-title').split(';').map(s=>trCat(s.trim())).filter(Boolean);
-   info={name:(k>=0?line.slice(k+1).trim():'')||g('tvg-name')||'Canal',cats:cats.length?cats:['Otros'],country:g('tvg-country')};
+   info={name:(k>=0?line.slice(k+1).trim():'')||g('tvg-name')||'Canal',cats:cats.length?cats:['Otros'],country:g('tvg-country'),tvgId:g('tvg-id'),tvgName:g('tvg-name'),tvgLogo:g('tvg-logo'),tvgLanguage:g('tvg-language')};
   }else if(!line.startsWith('#')&&/^https?:\/\//i.test(line)){
    out.push({...(info||{name:'Canal',cats:['Otros'],country:''}),url:line});info=null;
   }
@@ -534,7 +548,7 @@ function loadLang(code){
   items.forEach(p=>{
    let c=chMap.get(p.url);
    if(!c){c={url:p.url,lgs:[]};chMap.set(p.url,c)}
-   c.name=p.name;c.cats=p.cats;c.country=p.country;if(!c.lgs.includes(code))c.lgs.push(code);
+   c.name=p.name;c.cats=p.cats;c.country=p.country;c.tvgId=p.tvgId||c.tvgId;c.tvgName=p.tvgName||c.tvgName;c.tvgLogo=p.tvgLogo||c.tvgLogo;c.tvgLanguage=p.tvgLanguage||c.tvgLanguage;if(!c.lgs.includes(code))c.lgs.push(code);
   });
   cnt[code]=items.length;saveData();onData();
  })().catch(e=>{delete jobs[code];if(/HTTP 404/.test(e.message)){cnt[code]=0;return}throw e}));
@@ -548,7 +562,7 @@ function loadCountry(code){
   items.forEach(p=>{
    let c=chMap.get(p.url);
    if(!c){c={url:p.url,lgs:[],cts:[]};chMap.set(p.url,c)}
-   c.name=p.name;c.cats=p.cats;c.country=p.country;if(!c.cts)c.cts=[];if(!c.cts.includes(code))c.cts.push(code);
+   c.name=p.name;c.cats=p.cats;c.country=p.country;c.tvgId=p.tvgId||c.tvgId;c.tvgName=p.tvgName||c.tvgName;c.tvgLogo=p.tvgLogo||c.tvgLogo;c.tvgLanguage=p.tvgLanguage||c.tvgLanguage;if(!c.cts)c.cts=[];if(!c.cts.includes(code))c.cts.push(code);
   });
   ccnt[code]=items.length;saveData();onData();
  })().catch(e=>{delete jobsC[code];if(/HTTP 404/.test(e.message)){ccnt[code]=0;return}throw e}));
@@ -598,14 +612,14 @@ async function getCats(force){
 }
 /* al abrir la página: baja solo las listas de países, idiomas y categorías */
 function preloadLists(){
- Promise.all([getCountries(true),getLangs(true),getCats(true)]).then(()=>{if(panel==='country'||panel==='lang'||panel==='cat')renderPanel()});
+ Promise.all([getCountries(true),getLangs(true),getCats(true)]).then(()=>{if(panel==='country'||panel==='lang'||panel==='cat')renderPanel();if(flt.allC||flt.allL)loadNeeded()});
 }
 /* ---------- inicio: elegir país o idioma ---------- */
 const el=(t,c)=>{const e=document.createElement(t);if(c)e.className=c;return e};
 
 /* ---------- filtros ---------- */
 const kindOK=(set,arr)=>!set.size||(arr||[]).some(x=>set.has(x));
-const langMatch=c=>kindOK(flt.ctrs,c.cts)&&kindOK(flt.langs,c.lgs);
+const langMatch=c=>(flt.allC||kindOK(flt.ctrs,c.cts))&&(flt.allL||kindOK(flt.langs,c.lgs));
 const isCustomSelected=c=>!!(c.customIds||[]).some(id=>flt.custom.has(id));
 const isRegular=c=>!!((c.cts||[]).length||(c.lgs||[]).length);
 const catMatch=c=>!flt.cats.size||c.cats.some(k=>flt.cats.has(k));
@@ -703,6 +717,7 @@ function toggleOpt(c){
  if(c==='*'){flt[a]=!flt[a];if(flt[a])set.clear()}
  else{if(a)flt[a]=false;set.has(c)?set.delete(c):set.add(c)}
  renderSel();renderSecs();syncOpts();
+ if(c==='*'){renderSt();renderRows();loadNeeded()}
 }
 document.querySelectorAll('.sec').forEach(b=>b.onclick=()=>openPanel(b.dataset.k));
 $('pQ').addEventListener('input',fillPick);
@@ -733,14 +748,34 @@ function renderRows(){
  more.onclick=add;box.append(more);add();box.scrollTop=top;
 }
 function paintDot(d,u){const s=st[u];d.className='dot '+(s==='1'?'g':s==='0'?'r':'u');d.title=s==='1'?'Online':s==='0'?'No responde':'Sin probar'}
+function channelCountries(c){
+ const codes=[...new Set([...(c.cts||[]),...(c.country||'').split(/[;,]/).map(x=>x.trim()).filter(Boolean)])];
+ return codes.map(code=>{const item=ctrs.find(x=>x.code.toLowerCase()===code.toLowerCase());return item?item.name:code.toUpperCase()}).join(', ');
+}
+function channelLanguages(c){
+ const codes=[...new Set([...(c.lgs||[]),...(c.tvgLanguage||'').split(/[;,]/).map(x=>x.trim()).filter(Boolean)])];
+ return codes.map(code=>{const item=langs.find(x=>x.code.toLowerCase()===code.toLowerCase());return item?item.name:code}).join(', ');
+}
+function channelMeta(c){return [channelCountries(c),channelLanguages(c),(c.cats||[]).join(', ')].filter(Boolean).join(' · ')}
+function showChannelInfo(c){
+ const grid=$('channelInfoContent');grid.replaceChildren();
+ const field=(label,value,link=false)=>{if(!value)return;const l=el('div','info-label'),v=el('div','info-value');l.textContent=label;if(link){const a=document.createElement('a');a.href=value;a.target='_blank';a.rel='noopener noreferrer';a.textContent=value;v.append(a)}else v.textContent=value;grid.append(l,v)};
+ field('Nombre',c.name);field('País',channelCountries(c));field('Idioma',channelLanguages(c));field('Categorías',(c.cats||[]).join(', '));
+ field('ID IPTV',c.tvgId);field('Nombre EPG',c.tvgName);field('Logo',c.tvgLogo,true);
+ const sources=(c.customIds||[]).map(id=>customLists.find(x=>x.id===id)?.name).filter(Boolean);field('Listas propias',sources.join(', '));
+ field('Estado',st[c.url]==='1'?'Online':st[c.url]==='0'?'No responde':'Sin probar');field('Favorito',fav.has(c.url)?'Sí':'No');field('URL de transmisión',c.url,true);
+ $('channelInfoModal').classList.add('open');$('closeChannelInfo').focus();
+}
+$('closeChannelInfo').onclick=()=>$('channelInfoModal').classList.remove('open');
+$('channelInfoModal').addEventListener('click',e=>{if(e.target===$('channelInfoModal'))$('channelInfoModal').classList.remove('open')});
 function rowFor(c){
  const r=el('div','row'+(c.url===selId?' sel':''));r.dataset.u=c.url;
  const dot=el('span');paintDot(dot,c.url);dots.set(c.url,dot);
- const pick=el('button','pick');pick.innerHTML='<span class="nm"></span>';pick.firstChild.textContent=c.name;
+ const pick=el('button','pick');pick.innerHTML='<span class="nm"></span>';pick.firstChild.textContent=c.name;const meta=channelMeta(c);if(meta){const m=el('span','channel-meta');m.textContent=meta;pick.append(m)}
  pick.onclick=()=>{playChannel(c.url);if(innerWidth<=650)setDrawer(false)};
  const f=el('button','mini fav'+(fav.has(c.url)?' on':''));f.textContent=fav.has(c.url)?'★':'☆';f.title='Favorito';
  f.onclick=e=>{e.stopPropagation();fav.has(c.url)?fav.delete(c.url):fav.add(c.url);store.set('pulsar-fav',[...fav]);f.classList.toggle('on',fav.has(c.url));f.textContent=fav.has(c.url)?'★':'☆';if(flt.fav)renderRows()};
- r.append(dot,pick,f);return r;
+ const info=el('button','info-btn');info.textContent='ⓘ';info.title='Información del canal';info.setAttribute('aria-label','Información de '+c.name);info.onclick=e=>{e.stopPropagation();showChannelInfo(c)};r.append(dot,pick,info,f);return r;
 }
 function markSelected(){document.querySelectorAll('#channelList .row').forEach(r=>r.classList.toggle('sel',r.dataset.u===selId))}
 $('search').addEventListener('input',e=>{flt.q=e.target.value;renderSt();renderRows()});
@@ -785,13 +820,13 @@ let playTok=0,playTO;
 const spin=on=>{$('spin').hidden=!on};
 function playChannel(u){
  const c=chMap.get(u);if(!c)return;selId=u;saveView();const tok=++playTok;clearTimeout(playTO);
- $('nowName').textContent=c.name;$('spinLabel').textContent='Conectando a '+c.name;$('nowMeta').textContent='';$('empty').hidden=true;spin(true);markSelected();
+ $('nowName').textContent=c.name;$('spinLabel').textContent='Conectando a '+c.name;$('nowMeta').textContent=channelMeta(c);$('empty').hidden=true;spin(true);markSelected();
  if(hls){hls.destroy();hls=null}video.pause();video.removeAttribute('src');video.load();
  let triedNative=false,started=false,lastErr='';
  const live=()=>tok===playTok;
  const err=m=>{if(!live())return;clearTimeout(playTO);spin(false);setSt(u,'0');$('nowMeta').textContent=m;$('empty').hidden=false;$('emptyT').textContent='No se pudo reproducir';$('emptyS').textContent=m;wake()};
  const nativeFallback=()=>{if(triedNative)return;triedNative=true;if(hls){hls.destroy();hls=null}video.src=u;video.load();video.play().catch(()=>err('El navegador rechazó la reproducción.'))};
- video.onplaying=()=>{if(!live())return;started=true;clearTimeout(playTO);spin(false);setSt(u,'1');$('empty').hidden=true;$('nowMeta').textContent=c.cats.join(' · ')};
+ video.onplaying=()=>{if(!live())return;started=true;clearTimeout(playTO);spin(false);setSt(u,'1');$('empty').hidden=true;$('nowMeta').textContent=channelMeta(c)};
  video.onwaiting=()=>{if(live())spin(true)};
  video.onerror=()=>{if(live()&&!started)err('No compatible.'+(lastErr?' HLS: '+lastErr+'.':'')+' Puede estar caído o bloqueado por región.')};
  playTO=setTimeout(()=>{if(!started)err('El canal no responde.')},30000);
@@ -977,7 +1012,7 @@ document.addEventListener('keydown',e=>{
  renderDrawer();
  preloadLists();
  const last=v.last&&chMap.has(v.last)?v.last:null;
- if(hasSel()&&!flt.allC&&!flt.allL)loadNeeded();
+ if(hasSel()&&!flt.allC&&!flt.allL)loadNeeded(); // 'Todos' se carga tras obtener el catálogo completo
  if(last){wake();playChannel(last)}
  setDrawer(true);
  if(!hasSel()&&!chMap.size)openPanel('country',true)
