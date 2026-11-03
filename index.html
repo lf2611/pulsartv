@@ -2,7 +2,14 @@
 <html lang="es">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pulsar</title>
+<title>Pulsar TV</title>
+<meta name="theme-color" content="#05070d">
+<meta name="application-name" content="Pulsar TV">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
 <style>
 html{font-size:16px}
 :root{--accent:#1f6bff;--bg:#05070d;--bg-image:radial-gradient(55rem 32rem at 90% -12%,rgba(31,107,255,.2),transparent 60%);
@@ -46,14 +53,14 @@ svg{width:1.5rem;height:1.5rem;fill:none;stroke:currentColor;stroke-width:1.75;s
 .ib:hover,.ib:focus-visible{background:rgba(255,255,255,.16);opacity:1}
 #topbar{position:absolute;top:0;left:0;right:0;height:6.6rem;padding:.8rem 1rem;display:flex;align-items:center;gap:.3rem;z-index:6;background:linear-gradient(rgba(0,0,0,.6),transparent)}
 #topbar .sp{flex:1}
-#hud{position:absolute;left:0;right:0;bottom:0;padding:.8rem 1.6rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;background:rgba(3,6,14,.55);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.08);z-index:7;transition:opacity .4s}
+#hud{position:absolute;left:0;right:0;bottom:0;padding:.8rem 1.6rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;background:rgba(3,6,14,.08);-webkit-backdrop-filter:none;backdrop-filter:none;border-top:1px solid rgba(255,255,255,.035);z-index:7;transition:opacity .4s}
 #nowName{font-size:1.7rem;font-weight:600;text-shadow:0 .1rem .5rem #000a}
 #nowMeta{color:#c3cbd9;font-size:.95rem;margin-top:.1rem;text-shadow:0 .1rem .3rem #000a;max-width:50vw}
 .controls{display:flex;align-items:center;gap:.2rem}
 .vol{display:flex;align-items:center;gap:.2rem}
 .vol input{width:6rem;accent-color:#fff}
 
-#drawer{position:absolute;top:6.6rem;left:0;bottom:0;width:var(--dw);z-index:5;display:flex;flex-direction:column;color:#fff;text-shadow:0 .08rem .4rem rgba(0,0,0,.95);background:linear-gradient(90deg,rgba(3,6,14,.55) 0%,rgba(3,6,14,.38) 70%,rgba(3,6,14,0) 100%);transform:translateX(-102%);transition:transform .3s ease,opacity .4s ease}
+#drawer{position:absolute;top:0;left:0;bottom:0;width:var(--dw);z-index:8;display:flex;flex-direction:column;color:#fff;text-shadow:0 .08rem .4rem rgba(0,0,0,.95);background:linear-gradient(90deg,rgba(3,6,14,.72) 0%,rgba(3,6,14,.60) 70%,rgba(3,6,14,.12) 100%);transform:translateX(-102%);transition:transform .3s ease,opacity .4s ease}
 #drawer.open{transform:none}
 #search{margin:.3rem 1rem .5rem;padding:.6rem .8rem;border:0;border-radius:.6rem;background:rgba(255,255,255,.12);color:#fff;width:calc(100% - 2rem);font-size:.95rem;text-shadow:none}
 #search::placeholder{color:#b3bdd0}
@@ -189,7 +196,8 @@ svg{width:1.5rem;height:1.5rem;fill:none;stroke:currentColor;stroke-width:1.75;s
 #favBtn.on svg{fill:currentColor}
 #edge{position:absolute;left:0;top:0;bottom:0;width:3.2rem;z-index:9}
 #player.drawer-open #edge{pointer-events:none}
-#edgeTab{position:absolute;top:50%;left:0;transform:translateY(-50%);width:3.2rem;height:8.4rem;z-index:8;display:grid;place-items:center;border-radius:0 1.6rem 1.6rem 0;background:rgba(3,6,14,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#fff;transition:left .3s ease,opacity .4s ease,background .15s}
+@media(hover:none){#edge{pointer-events:none}}
+#edgeTab{position:absolute;top:50%;left:0;transform:translateY(-50%);width:3.2rem;height:8.4rem;z-index:11;display:grid;place-items:center;border-radius:0 1.6rem 1.6rem 0;background:rgba(3,6,14,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#fff;transition:left .3s ease,opacity .4s ease,background .15s}
 #edgeTab:hover,#edgeTab:focus-visible{background:rgba(3,6,14,.85)}
 #edgeTab svg{width:2.3rem;height:2.3rem;stroke-width:3.6;transition:transform .3s}
 #player.drawer-open #edgeTab{left:var(--dw)}
@@ -236,6 +244,24 @@ svg{width:1.5rem;height:1.5rem;fill:none;stroke:currentColor;stroke-width:1.75;s
 .controls .ib{width:4.5rem;height:4.5rem}
 .controls .ib svg{width:2.1rem;height:2.1rem}
 @media(max-width:650px){.controls{gap:.2rem}.controls .ib{width:3.2rem;height:3.2rem}.controls .ib svg{width:1.5rem;height:1.5rem}}
+
+/* Controles inferiores: iconos blancos y legibles sobre video sin oscurecerlo */
+#hud .controls .ib{color:#fff!important;opacity:1!important;text-shadow:0 1px 4px rgba(0,0,0,.9)}
+#hud .controls .ib svg{color:#fff!important;stroke:#fff!important;opacity:1!important;filter:drop-shadow(0 1px 2px rgba(0,0,0,.95)) drop-shadow(0 0 2px rgba(0,0,0,.6))}
+#hud .controls .ib:hover{background:rgba(255,255,255,.13)}
+/* Android TV: foco visual integrado */
+:where(button,input,select,[tabindex]):focus-visible{outline:none!important;outline-offset:0!important}
+button.tv-focused,button:focus-visible{background-color:rgba(86,132,224,.28)!important;box-shadow:inset 0 0 0 2px rgba(134,187,255,.95),0 0 0 3px rgba(56,110,205,.18),0 5px 18px rgba(0,0,0,.3)!important;filter:brightness(1.16);opacity:1!important;transition:background-color .12s,box-shadow .12s,filter .12s}
+.row:focus-within{background:rgba(72,120,208,.19)!important}
+input:focus-visible,select:focus-visible{box-shadow:0 0 0 2px #85baff!important;border-radius:5px}
+/* Evitar el destello azul nativo al tocar controles en navegadores móviles. */
+html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-highlight-color:transparent}
+/* El menú aprovecha toda la altura, también en orientación horizontal. */
+#drawer{top:0;padding-top:.35rem}
+/* Celular vertical: filtros debajo del logo; horizontal conserva posición superior. */
+@media (orientation:portrait) and (max-width:650px){
+  #drawer .d-secs{padding-top:6.8rem}
+}
 </style>
 </head>
 <body>
@@ -309,7 +335,52 @@ svg{width:1.5rem;height:1.5rem;fill:none;stroke:currentColor;stroke-width:1.75;s
 <div id="prog" hidden></div>
 <div id="toast" role="status"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1">
+/* Navegación espacial para controles Android TV / D-pad */
+(()=>{
+ const keys=['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
+ const selector='button:not([disabled]),input:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])';
+ const visible=e=>{if(!e||!e.isConnected)return false;const r=e.getBoundingClientRect(),c=getComputedStyle(e);return r.width>0&&r.height>0&&c.visibility!=='hidden'&&c.display!=='none'&&!e.closest('[hidden]')};
+ const scope=()=>{
+  const m=[...document.querySelectorAll('.mwrap.open')].filter(visible).pop();
+  return m||document;
+ };
+ const candidates=()=>[...scope().querySelectorAll(selector)].filter(e=>visible(e)&&!e.closest('[aria-hidden="true"]'));
+ const center=e=>{const r=e.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2,l:r.left,r:r.right,t:r.top,b:r.bottom}};
+ const navigate=key=>{
+  const all=candidates(),a=document.activeElement;
+  if(!all.length)return;
+  if(!all.includes(a)){(all.find(e=>e.closest('#drawer'))||all[0]).focus({preventScroll:true});return}
+  const o=center(a),vertical=key==='ArrowUp'||key==='ArrowDown',sign=(key==='ArrowRight'||key==='ArrowDown')?1:-1;
+  let best=null,score=Infinity;
+  for(const e of all){if(e===a)continue;const p=center(e),primary=(vertical?p.y-o.y:p.x-o.x)*sign;
+   if(primary<2)continue;
+   const secondary=Math.abs(vertical?p.x-o.x:p.y-o.y);
+   const overlap=vertical?Math.max(0,Math.min(o.r,p.r)-Math.max(o.l,p.l)):Math.max(0,Math.min(o.b,p.b)-Math.max(o.t,p.t));
+   const cost=primary+secondary*(overlap>0?.24:2.1);
+   if(cost<score){score=cost;best=e}
+  }
+  if(best){best.focus({preventScroll:true});best.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'})}
+ };
+ document.addEventListener('focusin',e=>{document.querySelectorAll('.tv-focused').forEach(x=>x.classList.remove('tv-focused'));if(e.target.matches('button'))e.target.classList.add('tv-focused')});
+ document.addEventListener('keydown',e=>{
+  const k=e.key==='Select'?'Enter':e.key;
+  if(keys.includes(k)){
+   const a=document.activeElement;
+   if(a&&a.matches('input[type="range"]')&&(k==='ArrowLeft'||k==='ArrowRight'))return;
+   if(a&&a.matches('input:not([type="range"]),textarea')&&(k==='ArrowLeft'||k==='ArrowRight'))return;
+   e.preventDefault();e.stopImmediatePropagation();navigate(k);return;
+  }
+  if(k==='Enter'&&e.key==='Select'){e.preventDefault();e.stopImmediatePropagation();document.activeElement?.click()}
+ },true);
+ const obs=new MutationObserver(()=>{
+  const active=document.activeElement;
+  if(!visible(active)||active===document.body){const all=candidates();if(all.length)all[0].focus({preventScroll:true})}
+ });
+ obs.observe(document.body,{attributes:true,attributeFilter:['class','hidden'],subtree:true});
+ window.addEventListener('load',()=>{setTimeout(()=>{if(document.activeElement===document.body){const a=candidates();if(a.length)a[0].focus({preventScroll:true})}},250)}, {once:true});
+})();
+</script>
 <script>
 (()=>{
 const $=id=>document.getElementById(id),video=$('video'),player=$('player');
@@ -725,7 +796,14 @@ document.addEventListener('fullscreenchange',wake);
 
 /* ---------- ajustes ---------- */
 const closeSettings=()=>$('settingsModal').classList.remove('open');
-$('settingsBtn').onclick=()=>{$('status').textContent='';$('settingsModal').classList.add('open')};
+$('settingsBtn').onclick=async()=>{
+ $('status').textContent='';
+ // El modal está fuera de #player: salir del fullscreen antes de mostrarlo.
+ if(fsActive()){
+  try{await exitFs()}catch(err){toast('No se pudo salir de pantalla completa');return}
+ }
+ $('settingsModal').classList.add('open');
+};
 $('closeSettings').onclick=closeSettings;
 $('refreshAll').onclick=async()=>{
  closeSettings();
@@ -746,7 +824,24 @@ document.querySelectorAll('.mwrap').forEach(m=>m.addEventListener('mousedown',e=
 $('edge').addEventListener('mouseenter',()=>{wake();setDrawer(true)});
 $('edge').addEventListener('click',()=>setDrawer(true));
 $('edgeTab').onclick=()=>setDrawer(!drawerOpen());
-$('edgeTab').addEventListener('mouseenter',()=>{if(!drawerOpen())setDrawer(true)});
+$('edgeTab').addEventListener('mouseenter',e=>{if(e.pointerType==='mouse'&&!drawerOpen())setDrawer(true)});
+// Gestos horizontales sobre el reproductor: derecha abre, izquierda cierra.
+let swipeStart=null;
+player.addEventListener('touchstart',e=>{
+ if(e.touches.length!==1||settingsOpen())return;
+ const t=e.touches[0];
+ if(e.target.closest('button,input,select,#channelList,.d-panel')){swipeStart=null;return}
+ swipeStart={x:t.clientX,y:t.clientY,at:Date.now(),edge:t.clientX<Math.max(65,innerWidth*.15)};
+},{passive:true});
+player.addEventListener('touchend',e=>{
+ if(!swipeStart||!e.changedTouches.length)return;
+ const start=swipeStart;swipeStart=null;
+ const t=e.changedTouches[0],dx=t.clientX-start.x,dy=t.clientY-start.y;
+ if(Math.abs(dx)<65||Math.abs(dx)<Math.abs(dy)*1.4||Date.now()-start.at>1100)return;
+ if(dx>0&&!drawerOpen()&&start.edge){setDrawer(true);wake()}
+ else if(dx<0&&drawerOpen()){setDrawer(false);wake()}
+},{passive:true});
+player.addEventListener('touchcancel',()=>swipeStart=null,{passive:true});
 
 /* ---------- teclado ---------- */
 document.addEventListener('keydown',e=>{
@@ -793,6 +888,11 @@ document.addEventListener('keydown',e=>{
  if(!hasSel()&&!chMap.size)openPanel('country',true)
 })();
 })();
+</script>
+<script>
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(() => {}));
+}
 </script>
 </body>
 </html>
