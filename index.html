@@ -286,6 +286,20 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
 .row .fav:focus-visible,.row .fav.tv-focused{background:transparent!important;box-shadow:none!important;filter:brightness(1.4);text-shadow:0 0 6px #fff,0 1px 4px #000}
 .custom-divider{padding:.8rem .8rem .35rem;font-size:.68rem;letter-spacing:.12em;color:#aeb9cd;font-weight:500;border-top:1px solid rgba(255,255,255,.14);margin-top:.35rem}
 .custom-manage-row{display:flex;gap:.4rem;align-items:center;margin:.45rem 0;flex-wrap:wrap}.custom-manage-row span{flex:1;min-width:7rem;overflow:hidden;text-overflow:ellipsis}.custom-manage-row .btn{font-size:.75rem}
+
+/* Ajustes de interfaz noviembre: visibilidad, filtros y carga rápida */
+#hud{background:linear-gradient(to top,rgba(2,4,10,.49) 0%,rgba(2,4,10,.22) 48%,transparent 100%)!important;border:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+#drawer{background:linear-gradient(90deg,rgba(3,6,14,.87) 0%,rgba(3,6,14,.77) 55%,rgba(3,6,14,.36) 90%,rgba(3,6,14,.12) 100%)!important}
+#drawer.open{z-index:12}
+#edgeTab{z-index:13}
+#drawer.panel-open .d-panel{padding-bottom:max(.75rem,env(safe-area-inset-bottom))}
+.p-btns{order:0!important;display:flex!important;justify-content:flex-end!important;gap:.7rem!important;flex-wrap:nowrap!important}
+#pClr,#pOk{font-size:.94rem!important;padding:.55rem 1.05rem!important;min-height:2.65rem!important;white-space:nowrap}
+.p-search{display:flex;align-items:center;gap:.5rem}
+#pQ{flex:1;min-width:0;width:auto!important}
+#pClose{position:static;flex:none;width:2.7rem;height:2.7rem;border:0;border-radius:.55rem;background:rgba(255,255,255,.13);color:white;font-size:2.2rem;font-weight:800;line-height:1;cursor:pointer;text-shadow:0 1px 4px #000}
+#pClose:hover,#pClose:focus-visible{background:rgba(255,255,255,.24)}
+.more-languages{margin-top:.55rem;text-align:center!important;color:#c7dcff!important;font-weight:650!important;border-top:1px solid rgba(255,255,255,.18)!important}
 </style>
 </head>
 <body>
@@ -313,7 +327,7 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
   </div>
   <div class="d-panel" id="dPanel" hidden>
    <div class="p-pick" id="pPick">
-    <div class="p-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="pQ" placeholder="Buscar" aria-label="Buscar en la lista"></div>
+    <div class="p-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="pQ" placeholder="Buscar" aria-label="Buscar en la lista"><button id="pClose" type="button" title="Cerrar filtros" aria-label="Cerrar filtros">×</button></div>
     <div class="p-list" id="pList"></div>
    </div>
    <div class="p-top" id="pTop" hidden><div class="p-sel" id="pSel"></div><div class="p-btns"><button class="btn small" id="pClr">LIMPIAR</button><button class="btn small" id="pOk">LISTO</button></div></div>
@@ -615,6 +629,7 @@ const hasSel=()=>flt.ctrs.size||flt.langs.size||flt.allC||flt.allL;
 function renderDrawer(){renderSecs();renderPanel();renderSt();renderRows();paintChk()}
 function renderLive(){renderSecs();renderSt();renderRows()}
 
+let showAllLanguages=false;
 /* País · Idioma · Categoría */
 function renderSecs(){
  document.querySelectorAll('.sec').forEach(b=>{
@@ -626,7 +641,7 @@ function renderSecs(){
 async function openPanel(k,pick){
  if(panel===k&&!pick){closePanel();return}
  if(panel&&panel!==k)applyKind(panel);
- panel=k;pickOpen=!!pick;$('pQ').value='';
+ panel=k;pickOpen=!!pick;$('pQ').value='';if(k==='lang')showAllLanguages=false;
  renderSecs();renderPanel();
  if(k==='country'&&!ctrs.length){await getCountries();if(panel===k)renderPanel()}
  if(k==='lang'&&!langs.length){await getLangs();if(panel===k)renderPanel()}
@@ -661,7 +676,9 @@ function optionList(k){
 }
 function fillPick(){
  const k=panel,box=$('pList'),q=strip($('pQ').value);box.innerHTML='';
- const rows=optionList(k).filter(o=>!q||strip(o.name).includes(q)||o.c.toLowerCase().includes(q));
+ let rows=optionList(k).filter(o=>!q||strip(o.name).includes(q)||o.c.toLowerCase().includes(q));
+ const limited=k==='lang'&&!q&&!showAllLanguages;
+ if(limited){const priority=new Set(MAIN);kSet(k).forEach(x=>priority.add(x));rows=rows.filter(o=>priority.has(o.c))}
  if(k==='cat'){
   const sources=customLists.filter(x=>!q||strip(x.name).includes(q));
   if(sources.length){const hd=el('div','custom-divider');hd.textContent='MIS LISTAS';box.append(hd);sources.forEach(x=>{const b=el('button','opt custom-opt');b.dataset.custom=x.id;b.textContent=x.name;b.onclick=()=>{flt.custom.has(x.id)?flt.custom.delete(x.id):flt.custom.add(x.id);renderSel();renderSecs();syncOpts();renderSt();renderRows()};box.append(b)})}
@@ -674,6 +691,7 @@ function fillPick(){
   if(o.n!=null){const m=el('small');m.textContent=o.n;b.append(m)}
   b.onclick=()=>toggleOpt(o.c);box.append(b);
  });
+ if(k==='lang'&&!q){const more=el('button','opt more-languages');more.textContent=showAllLanguages?'Mostrar idiomas principales':'Más idiomas';more.onclick=()=>{showAllLanguages=!showAllLanguages;fillPick()};box.append(more)}
  syncOpts();
 }
 function syncOpts(){
@@ -689,6 +707,7 @@ function toggleOpt(c){
 document.querySelectorAll('.sec').forEach(b=>b.onclick=()=>openPanel(b.dataset.k));
 $('pQ').addEventListener('input',fillPick);
 $('pOk').onclick=closePanel;
+$('pClose').onclick=()=>{closePanel();setDrawer(true)};
 $('pClr').onclick=()=>{if(!panel)return;const a=kAll(panel);if(a)flt[a]=false;kSet(panel).clear();if(panel==='cat')flt.custom.clear();renderSel();renderSecs();syncOpts();renderSt();renderRows()};
 
 /* luces de estado + favoritos */
