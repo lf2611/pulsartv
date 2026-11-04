@@ -405,6 +405,73 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
  #player.drawer-open #topbar .d-secs{display:grid!important}
  #player.drawer-open #logo{opacity:0!important}
 }
+
+/* Ajustes de proporción y navegación móvil — 2026-11-04 */
+#drawer .d-secs .sec .ct:not(:empty),#topbar .d-secs .sec .ct:not(:empty){
+ min-width:1.08rem!important;height:1.08rem!important;padding:0 .15rem!important;
+ font-size:.77rem!important;font-weight:800!important;line-height:1!important;
+ box-shadow:0 0 5px rgba(35,185,255,.35)!important;
+}
+@media(max-width:650px) and (orientation:portrait){
+ #topbar{height:6.45rem!important;z-index:18!important}
+ #logo,#player.drawer-open #logo{opacity:1!important;visibility:visible!important;z-index:19!important}
+ #topbar .d-secs{top:3.05rem!important;padding-bottom:0!important}
+ #drawer{padding-top:6.35rem!important;padding-bottom:4.6rem!important;z-index:14!important}
+ #drawer .d-bar{padding-top:0!important;padding-bottom:.15rem!important}
+ #hud,#player.drawer-open #hud{z-index:17!important;pointer-events:none!important}
+ #hud .controls,#hud .controls button,#hud .controls input{pointer-events:auto!important}
+ #player.drawer-open #hud>div:first-child{opacity:0!important;pointer-events:none!important}
+ #player.drawer-open #hud .controls{background:linear-gradient(to top,rgba(0,0,0,.46),rgba(0,0,0,0))!important;border-radius:.7rem}
+ #player.drawer-open #mobileMenuBtn{color:#fff!important;opacity:1!important}
+ #drawer #channelList{padding-bottom:1.3rem!important}
+}
+
+/* Ajustes: menú exclusivamente móvil, logos y legibilidad de filtros */
+#mobileMenuBtn{display:none!important}
+@media (max-width:650px) and (orientation:portrait){
+ #mobileMenuBtn{display:grid!important;place-items:center!important}
+}
+.now-channel{display:flex;align-items:center;gap:.75rem;min-width:0}
+.now-channel-text{min-width:0}
+.now-channel-logo{width:3.45rem;height:3.45rem;flex:none;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:5px;padding:5px;box-sizing:border-box;overflow:hidden}
+.now-channel-logo[hidden]{display:none!important}
+.now-channel-logo img{display:block;max-width:100%;max-height:100%;object-fit:contain}
+.row .channel-logo:not(.no-logo){background:#fff!important;border-radius:5px!important;padding:4px!important;box-sizing:border-box!important;width:2.55rem!important;height:2.35rem!important}
+.row .channel-logo img{max-width:100%;max-height:100%;object-fit:contain}
+#drawer .p-list .opt{color:#fff!important}
+#drawer .p-list .opt>span{color:#fff!important;flex:0 1 auto!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#drawer .p-list .opt .opt-count{color:#aeb8ca!important;font-size:.91em!important;font-weight:700!important;white-space:nowrap}
+#drawer .p-list .opt.on{color:#fff!important}
+@media(max-width:650px) and (orientation:portrait){
+ .now-channel-logo{width:2.65rem;height:2.65rem;padding:4px}
+}
+
+/* Favoritos: lila eléctrico uniforme, incluso al pasar el mouse o enfocar */
+.row .fav.on, .row .fav.on:hover, .row .fav.on:focus-visible,
+.row .fav.on.tv-focused, #favBtn.on, #favBtn.on:hover,
+#favBtn.on:focus-visible, #favBtn.on.tv-focused {
+ color:#e19aff!important;
+ background:transparent!important;
+ outline:none!important;
+ border-color:transparent!important;
+ box-shadow:none!important;
+ text-shadow:0 0 3px rgba(255,255,255,.8),0 0 8px rgba(222,125,255,.95),0 0 16px rgba(194,77,255,.65)!important;
+ filter:drop-shadow(0 0 4px rgba(215,105,255,.85))!important;
+}
+.row .fav.on:hover, .row .fav.on:focus-visible, .row .fav.on.tv-focused,
+#favBtn.on:hover, #favBtn.on:focus-visible, #favBtn.on.tv-focused {
+ color:#f0bcff!important;
+ filter:drop-shadow(0 0 6px rgba(227,130,255,1))!important;
+}
+#favBtn.on svg, #favBtn.on:hover svg, #favBtn.on:focus-visible svg {
+ fill:currentColor!important;stroke:currentColor!important;
+ filter:drop-shadow(0 0 5px rgba(219,115,255,.85))!important;
+}
+.row .fav:not(.on):hover,.row .fav:not(.on):focus-visible {
+ color:#e1a1ff!important;background:transparent!important;outline:none!important;
+ box-shadow:none!important;text-shadow:0 0 8px rgba(209,117,255,.7)!important;
+}
+
 </style>
 </head>
 <body>
@@ -455,7 +522,7 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
  </aside>
 
  <div id="hud" class="fade">
-  <div><div id="nowName">Sin canal</div><div id="nowMeta"></div></div>
+  <div class="now-channel"><span id="nowLogo" class="now-channel-logo" hidden></span><div class="now-channel-text"><div id="nowName">Sin canal</div><div id="nowMeta"></div></div></div>
   <div class="controls">
    <button class="ib" id="mobileMenuBtn" title="Abrir canales y filtros" aria-label="Abrir canales y filtros" aria-expanded="false"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
    <button class="ib" id="prevBtn" title="Anterior (←)" data-ic="prev"></button>
@@ -736,7 +803,7 @@ const visible=()=>channels.filter(matches);
 
 /* ---------- vistas ---------- */
 function newSearch(){setDrawer(true);openPanel('country',true)}
-function stopVideo(){playTok++;clearTimeout(playTO);spin(false);if(hls){hls.destroy();hls=null}video.pause();video.removeAttribute('src');video.load();$('nowName').textContent='Sin canal';$('nowMeta').textContent='';$('emptyT').textContent='';$('emptyS').textContent='';$('empty').hidden=false}
+function stopVideo(){playTok++;clearTimeout(playTO);spin(false);if(hls){hls.destroy();hls=null}video.pause();video.removeAttribute('src');video.load();$('nowName').textContent='Sin canal';$('nowMeta').textContent='';setNowLogo(null);$('emptyT').textContent='';$('emptyS').textContent='';$('empty').hidden=false}
 
 /* ---------- menú lateral ---------- */
 function setDrawer(open){$('drawer').classList.toggle('open',open);player.classList.toggle('drawer-open',open);if(open)wake()}
@@ -810,7 +877,7 @@ function fillPick(){
  if(!rows.length&&!customLists.length){box.innerHTML='<div class="none">'+(k==='cat'?'Todavía no hay categorías. Elegí un país o idioma.':'Sin resultados')+'</div>';return}
  rows.forEach(o=>{
   const b=el('button','opt'),n=el('span');b.dataset.c=o.c;n.textContent=o.name;b.append(n);
-  if(o.n!=null){const m=el('small');m.textContent=o.n;b.append(m)}
+  if(o.n!=null){const m=el('small','opt-count');m.textContent='('+o.n+')';n.append(' ',m)}
   b.onclick=()=>toggleOpt(o.c);box.append(b);
  });
  if(k==='lang'&&!q){const more=el('button','opt more-languages');more.textContent=showAllLanguages?'Mostrar idiomas principales':'Más idiomas';more.onclick=()=>{showAllLanguages=!showAllLanguages;fillPick()};box.append(more)}
@@ -925,9 +992,17 @@ $('refBtn').onclick=refreshEverything;
 /* ---------- reproducción ---------- */
 let playTok=0,playTO;
 const spin=on=>{$('spin').hidden=!on};
+function setNowLogo(c){
+ const box=$('nowLogo');box.replaceChildren();
+ const url=c&&c.tvgLogo;
+ if(!url||!/^https?:\/\//i.test(url)){box.hidden=true;return}
+ const img=document.createElement('img');img.alt='Logo de '+c.name;img.referrerPolicy='no-referrer';
+ img.onerror=()=>{if(box.contains(img)){box.replaceChildren();box.hidden=true}};
+ img.src=url;box.append(img);box.hidden=false;
+}
 function playChannel(u){
  const c=chMap.get(u);if(!c)return;selId=u;saveView();const tok=++playTok;clearTimeout(playTO);
- $('nowName').textContent=c.name;$('spinLabel').textContent='Conectando a '+c.name;$('nowMeta').textContent=channelMeta(c);$('empty').hidden=true;spin(true);markSelected();
+ $('nowName').textContent=c.name;setNowLogo(c);$('spinLabel').textContent='Conectando a '+c.name;$('nowMeta').textContent=channelMeta(c);$('empty').hidden=true;spin(true);markSelected();
  if(hls){hls.destroy();hls=null}video.pause();video.removeAttribute('src');video.load();
  let triedNative=false,started=false,lastErr='';
  const live=()=>tok===playTok;
@@ -1143,10 +1218,12 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   if(portrait()){if(tabs.parentNode!==top)top.appendChild(tabs)}
   else if(tabs.parentNode!==drawer)anchor.parentNode.insertBefore(tabs,anchor.nextSibling);
   menu.setAttribute('aria-expanded',drawer.classList.contains('open')?'true':'false');
+  menu.innerHTML=drawer.classList.contains('open')?'<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>':'<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+  menu.setAttribute('aria-label',drawer.classList.contains('open')?'Cerrar canales y filtros':'Abrir canales y filtros');
  }
  menu.addEventListener('click',()=>{setDrawer(!drawerOpen());sync()});
  tabs.addEventListener('click',e=>{if(portrait()&&e.target.closest('.sec')&&!drawerOpen()){setDrawer(true);sync()}});
- const obs=new MutationObserver(()=>menu.setAttribute('aria-expanded',drawer.classList.contains('open')?'true':'false'));
+ const obs=new MutationObserver(sync);
  obs.observe(drawer,{attributes:true,attributeFilter:['class']});
  window.addEventListener('resize',sync);window.addEventListener('orientationchange',sync);sync();
 })();
