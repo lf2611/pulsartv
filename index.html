@@ -487,11 +487,23 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
 /* Botón limpiar: icono discreto, sin afectar la acción existente */
 #pClr:not([hidden]){display:inline-flex!important;align-items:center;justify-content:center;gap:.35rem}
 #pClr:not([hidden])::before{content:'×';font-size:1.12em;font-weight:500;line-height:1}
+/* Papelera de filtros: a la izquierda de los tags, sin fondo hasta hover. */
+#drawer .p-top{align-items:center!important;gap:.45rem!important}
+#drawer #pClr:not([hidden]){order:-1!important;display:inline-flex!important;flex:0 0 25px!important;width:25px!important;height:25px!important;min-width:25px!important;min-height:25px!important;padding:0!important;margin:0!important;border:0!important;border-radius:50%!important;background:transparent!important;color:#d5d5d5!important;box-shadow:none!important;outline:0!important;opacity:1!important;transition:background-color .15s,color .15s!important}
+#drawer #pClr::before,#drawer #pClr::after{content:none!important;display:none!important}
+#drawer #pClr svg{width:16px;height:16px;display:block;flex:none;stroke:currentColor;fill:none;filter:none}
+#drawer #pClr:hover,#drawer #pClr:focus-visible,#drawer #pClr.tv-focused{background:rgba(210,215,225,.22)!important;color:#fff!important;box-shadow:none!important;filter:none!important}
 /* Indicador del canal activo: fino y con color según el estado */
 #channelList .row.sel{box-shadow:inset 2px 0 0 #9ca3af!important}
 #channelList .row.sel.state-g{box-shadow:inset 2px 0 0 #52e38a!important}
 #channelList .row.sel.state-r{box-shadow:inset 2px 0 0 #e66b6b!important}
 #channelList .row.sel.state-u{box-shadow:inset 2px 0 0 #aab4c2!important}
+/* Menú móvil: control de cierre siempre accesible sobre el panel */
+@media (max-width:650px) and (orientation:portrait){
+ #player.drawer-open #hud.fade{opacity:1!important;pointer-events:auto!important;visibility:visible!important}
+ #player.drawer-open #hud .controls{pointer-events:auto!important}
+ #player.drawer-open #mobileMenuBtn{position:relative!important;z-index:30!important;pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important}
+}
 </style>
 </head>
 <body>
@@ -533,7 +545,7 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
   <div class="d-panel" id="dPanel" hidden>
    <div class="p-pick" id="pPick">
     <div class="p-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="pQ" placeholder="Buscar" aria-label="Buscar en filtros"></div>
-    <div class="p-top" id="pTop"><div class="p-sel" id="pSel"></div><button class="btn small" id="pClr">Limpiar</button></div>
+    <div class="p-top" id="pTop"><button class="btn small" id="pClr" type="button" aria-label="Limpiar filtros seleccionados" title="Limpiar filtros seleccionados"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 4h4M6.5 7l.8 13h9.4l.8-13M10 11v6M14 11v6"/></svg></button><div class="p-sel" id="pSel"></div></div>
     <div class="p-list" id="pList"></div>
    </div>
   </div>
@@ -1241,7 +1253,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   menu.innerHTML=drawer.classList.contains('open')?'<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>':'<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
   menu.setAttribute('aria-label',drawer.classList.contains('open')?'Cerrar canales y filtros':'Abrir canales y filtros');
  }
- menu.addEventListener('click',()=>{setDrawer(!drawerOpen());sync()});
+ menu.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();setDrawer(!drawerOpen());wake();sync()});
  tabs.addEventListener('click',e=>{if(portrait()&&e.target.closest('.sec')&&!drawerOpen()){setDrawer(true);sync()}});
  const obs=new MutationObserver(sync);
  obs.observe(drawer,{attributes:true,attributeFilter:['class']});
