@@ -472,6 +472,26 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
  box-shadow:none!important;text-shadow:0 0 8px rgba(209,117,255,.7)!important;
 }
 
+
+/* Refinamiento visual del panel lateral y del canal seleccionado */
+@media (min-width:651px), (orientation:landscape){
+ #drawer{background:linear-gradient(90deg,rgba(3,6,14,.95) 0%,rgba(3,6,14,.86) 38%,rgba(3,6,14,.52) 68%,rgba(3,6,14,.15) 90%,rgba(3,6,14,0) 100%)!important}
+}
+@media (max-width:650px) and (orientation:portrait){
+ #drawer{background:linear-gradient(105deg,rgba(3,6,14,.97),rgba(3,6,14,.90))!important}
+}
+/* Sin líneas divisorias entre búsqueda, etiquetas y opciones */
+#drawer .p-top,#drawer .d-panel,#drawer .p-search,#drawer .p-pick,#drawer .p-list,
+#drawer #search,#drawer #channelList{border-top:0!important;border-bottom:0!important}
+#drawer .p-top::before,#drawer .p-top::after{display:none!important}
+/* Botón limpiar: icono discreto, sin afectar la acción existente */
+#pClr:not([hidden]){display:inline-flex!important;align-items:center;justify-content:center;gap:.35rem}
+#pClr:not([hidden])::before{content:'×';font-size:1.12em;font-weight:500;line-height:1}
+/* Indicador del canal activo: fino y con color según el estado */
+#channelList .row.sel{box-shadow:inset 2px 0 0 #9ca3af!important}
+#channelList .row.sel.state-g{box-shadow:inset 2px 0 0 #52e38a!important}
+#channelList .row.sel.state-r{box-shadow:inset 2px 0 0 #e66b6b!important}
+#channelList .row.sel.state-u{box-shadow:inset 2px 0 0 #aab4c2!important}
 </style>
 </head>
 <body>
@@ -672,7 +692,7 @@ let chMap=new Map(),channels=[],cnt={},ccnt={},st={},fav=new Set(store.get('puls
 let selId=null,hls=null,total=0,done=0,batches=0;
 let customLists=store.get("pulsar-custom-lists",[]);if(!Array.isArray(customLists))customLists=[];
 const flt={langs:new Set(),ctrs:new Set(),allC:false,allL:false,cats:new Set(),custom:new Set(),fav:false,q:''};
-const L=Object.assign({g:true,r:false,u:true},store.get('pulsar-lights',{}));
+const L=Object.assign({g:true,r:true,u:true},store.get('pulsar-lights',{}));
 function parseM3U(text){
  const out=[];let info=null;
  for(const raw of text.replace(/^\uFEFF/,'').split(/\r?\n/)){
@@ -942,7 +962,7 @@ function showChannelInfo(c){
 $('closeChannelInfo').onclick=()=>$('channelInfoModal').classList.remove('open');
 $('channelInfoModal').addEventListener('click',e=>{if(e.target===$('channelInfoModal'))$('channelInfoModal').classList.remove('open')});
 function rowFor(c){
- const r=el('div','row'+(c.url===selId?' sel':''));r.dataset.u=c.url;
+ const r=el('div','row'+(c.url===selId?' sel':''));r.dataset.u=c.url;r.classList.add('state-'+(st[c.url]==='1'?'g':st[c.url]==='0'?'r':'u'));
  const dot=el('span');paintDot(dot,c.url);dots.set(c.url,dot);
  const logo=el('span','channel-logo');if(c.tvgLogo&&/^https?:\/\//i.test(c.tvgLogo)){const img=new Image();img.loading='lazy';img.alt='';img.referrerPolicy='no-referrer';img.src=c.tvgLogo;img.onerror=()=>{img.remove();logo.classList.add('no-logo')};logo.append(img)}else logo.classList.add('no-logo');
  const pick=el('button','pick');pick.innerHTML='<span class="nm"></span>';pick.firstChild.textContent=c.name;const meta=channelMeta(c);if(meta){const m=el('span','channel-meta');m.textContent=meta;pick.append(m)}
@@ -955,8 +975,8 @@ function markSelected(){document.querySelectorAll('#channelList .row').forEach(r
 $('search').addEventListener('input',e=>{flt.q=e.target.value;renderSt();renderRows()});
 
 /* ---------- estado verde / rojo ---------- */
-let stT=0;const schedSt=()=>{if(stT)return;stT=setTimeout(()=>{stT=0;renderSt()},300)};
-function setSt(u,v){st[u]=v;const d=dots.get(u);if(d)paintDot(d,u);saveSt();if(!player.hidden)schedSt()}
+let stT=0;const schedSt=()=>{if(stT)return;stT=setTimeout(()=>{stT=0;renderSt();renderRows()},250)};
+function setSt(u,v){st[u]=v;const d=dots.get(u);if(d)paintDot(d,u);saveSt();schedSt()}
 async function probe(u){
  const go=async(opt)=>{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),8000);try{return await fetch(u,{...opt,signal:ac.signal,cache:'no-store'})}finally{clearTimeout(t)}};
  try{
