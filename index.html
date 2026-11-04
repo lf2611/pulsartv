@@ -680,6 +680,23 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
 .shelf-footer .shelf-star{margin:0!important}
 </style>
 
+<style id="pulsar-explore-compact-v2">
+#drawer #compactToggle{order:1!important;flex:none!important;border:0;background:transparent;color:#b995f6;font-size:.86rem;font-weight:700;padding:.45rem .22rem;cursor:pointer;white-space:nowrap}
+#drawer #compactToggle.active{color:#fff;text-decoration:underline;text-decoration-color:#a66aff;text-underline-offset:4px}
+#drawer #compactToggle[hidden]{display:none!important}
+#drawer .quick-filter-row #filterToggle{order:2!important}
+#drawer .quick-filter-row #filterClose{order:3!important}
+#drawer .quick-filter-row #activeQuickFilters{order:4!important}
+#drawer .shelf-status{display:inline-flex;align-items:center;gap:.35rem;min-width:0}
+#drawer .shelf-info{display:grid;place-items:center;width:1.5rem;height:1.65rem;padding:0;background:transparent;border:0;color:#e7e8f2;font:700 .83rem Arial,sans-serif;cursor:pointer}
+#drawer .explore-compact .category-track{display:flex!important;flex-wrap:nowrap!important;grid-template-columns:none!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x proximity!important;overscroll-behavior-inline:contain;gap:.5rem!important;padding-bottom:.65rem!important;-webkit-overflow-scrolling:touch}
+#drawer .explore-compact .shelf-card{flex:0 0 clamp(7rem,35%,9rem)!important;width:clamp(7rem,35%,9rem)!important;scroll-snap-align:start!important}
+@media(min-width:651px){#drawer .explore-compact .shelf-card{flex-basis:8.7rem!important;width:8.7rem!important}}
+</style>
+<style id="pulsar-category-heading-final">
+#drawer .category-heading{font-size:1.368rem!important;}
+#drawer .category-heading .category-count{color:#aaaab5;font-size:1em;font-weight:400;}
+</style>
 </head>
 <body>
 
@@ -712,7 +729,8 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
    </div>
    <button id="drawerCloseTop" type="button" aria-label="Cerrar menú" title="Cerrar menú">×</button>
   </div>
-  <div class="quick-filter-row"><button class="ib" id="viewToggle" type="button" title="Cambiar a vista de lista" aria-label="Cambiar a vista de lista"></button><button id="filterToggle" type="button" aria-expanded="false" aria-label="Mostrar filtros"></button><button id="filterClose" type="button" hidden aria-label="Cerrar filtros" title="Cerrar filtros">×</button><div id="activeQuickFilters" class="quick-filters" aria-label="Filtros activos"></div></div>
+  <div class="search-with-fav"><button class="ib" id="favBtn" title="Solo favoritos" aria-label="Solo favoritos" aria-pressed="false" data-ic="star"></button><input id="search" placeholder="Buscar" aria-label="Buscar canal"></div>
+  <div class="quick-filter-row"><div class="filter-controls"><button id="filterToggle" type="button" aria-expanded="false" aria-label="Mostrar filtros"></button><button id="filterClose" type="button" hidden aria-label="Cerrar filtros" title="Cerrar filtros">×</button></div><div id="activeQuickFilters" class="quick-filters" aria-label="Filtros activos"></div></div><div class="view-controls-row"><button id="compactToggle" type="button" hidden aria-pressed="false" title="Cambiar disposición de Explorar">Compacto</button><button class="ib" id="viewToggle" type="button" title="Cambiar a vista de lista" aria-label="Cambiar a vista de lista"></button></div>
   <div class="d-panel" id="dPanel" hidden>
    <div class="filter-section" data-filter="country">
     <div class="filter-heading"><button class="filter-title" type="button" data-expand="country" aria-expanded="false"><span>País</span></button><div class="filter-tags" id="tags-country"></div><button class="filter-add" type="button" data-expand="country" aria-label="Abrir países">+</button></div>
@@ -727,7 +745,6 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
     <div class="filter-options" id="options-cat" hidden></div>
    </div>
   </div>
-  <div class="search-with-fav"><button class="ib" id="favBtn" title="Solo favoritos" aria-label="Solo favoritos" aria-pressed="false" data-ic="star"></button><input id="search" placeholder="Buscar" aria-label="Buscar canal"></div>
   <div id="channelList"></div>
  </aside>
 
@@ -1155,7 +1172,7 @@ const kName=(k,c)=>k==='country'?cname(c):k==='lang'?lname(c):c;
 const saveView=()=>store.set('pulsar-view',{ctrs:[...flt.ctrs],langs:[...flt.langs],cats:[...flt.cats],custom:[...flt.custom],allC:flt.allC,allL:flt.allL,fav:flt.fav,last:selId});
 const hasSel=()=>flt.ctrs.size||flt.langs.size||flt.allC||flt.allL;
 let filtersOpen=false,expandedFilter=null;let showAllFilterLanguages=false;
-let channelView="explore";const quickSelected=new Set();
+let channelView="explore",exploreCompact=false;const quickSelected=new Set();
 function renderDrawer(){renderSecs();renderPanel();renderSt();renderRows();paintChk()}
 function renderLive(){renderSecs();renderPanel();renderSt();renderRows()}
 function renderSecs(){
@@ -1299,10 +1316,10 @@ function quickAllows(c){
 $('filterToggle').onclick=()=>filtersOpen?closePanel():openPanel('filters');$('filterClose').onclick=closePanel;
 $('drawerCloseTop').onclick=()=>setDrawer(false);
 function paintViewToggle(){const b=$('viewToggle');const next=channelView==='explore'?'list':'explore';b.innerHTML=next==='list'?'<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/><path d="M9 6h12M9 12h12M9 18h12"/></svg><span>Lista</span>':'<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/></svg><span>Explorar</span>';b.title='Cambiar a vista '+(next==='list'?'de lista':'de exploración');b.setAttribute('aria-label',b.title)}
-$('viewToggle').onclick=()=>{channelView=channelView==='explore'?'list':'explore';paintViewToggle();renderRows()};paintViewToggle();
+$('viewToggle').onclick=()=>{channelView=channelView==='explore'?'list':'explore';paintViewToggle();renderRows()};$('compactToggle').onclick=()=>{exploreCompact=!exploreCompact;renderRows()};paintViewToggle();
 const categoryScroll=new Map();
 function renderRows(){
- const box=$('channelList');renderQuickFilters();
+ const box=$('channelList');renderQuickFilters();const compact=$('compactToggle');compact.hidden=channelView!=='explore';compact.textContent=exploreCompact?'Cuadrícula':'Compacto';compact.classList.toggle('active',exploreCompact);compact.setAttribute('aria-pressed',String(exploreCompact));box.classList.toggle('explore-compact',channelView==='explore'&&exploreCompact);
  if(channelView==='list'){box.replaceChildren();dots=new Map();const vis=visible();let shown=0;const more=el('button','more');const add=()=>{const frag=document.createDocumentFragment(),end=Math.min(vis.length,shown+PAGE);for(let i=shown;i<end;i++)frag.append(rowFor(vis[i]));shown=end;box.insertBefore(frag,more);if(shown<vis.length){more.textContent='Ver más ('+(vis.length-shown)+')';if(!more.isConnected)box.append(more)}else more.remove()};more.onclick=add;box.append(more);add();return}
  // Las categorías se presentan en cuadrícula vertical, sin desplazamiento horizontal.
  box.replaceChildren();dots=new Map();
@@ -1314,23 +1331,14 @@ function renderRows(){
  if(!sorted.length){if(!channels.length){const d=el('p','none');d.textContent='Cargando categorías…';box.append(d)}return}
  for(const [name,items] of sorted){
   const section=el('section','category-shelf'),heading=el('h3','category-heading');
-  heading.textContent=name+' ('+items.length+')';section.append(heading);
+  heading.append(document.createTextNode(name+' '));const count=el('span','category-count');count.textContent='('+items.length+')';heading.append(count);section.append(heading);
   if(items.length){
    const track=el('div','category-track');track.dataset.category=name;track.setAttribute('aria-label','Canales de '+name);
-   let shown=0;const step=24;
-   const load=()=>{
-    const end=Math.min(shown+step,items.length),frag=document.createDocumentFragment();
-    for(let i=shown;i<end;i++)frag.append(shelfCard(items[i]));
-    shown=end;track.append(frag);
-   };
-   load();
+   // En ambas modalidades de Explorar se muestran todos los canales.
+   const frag=document.createDocumentFragment();
+   for(const item of items)frag.append(shelfCard(item));
+   track.append(frag);
    section.append(track);
-   if(shown<items.length){
-    const more=el('button','more shelf-more');
-    const update=()=>{more.textContent='Ver más ('+(items.length-shown)+')';};
-    update();more.onclick=()=>{load();if(shown>=items.length)more.remove();else update()};
-    section.append(more);
-   }
    box.append(section);
    
   }
@@ -1348,7 +1356,7 @@ function shelfCard(c){
  star.onclick=()=>{fav.has(c.url)?fav.delete(c.url):fav.add(c.url);store.set('pulsar-fav',[...fav]);if(flt.fav)renderRows();else{star.classList.toggle('on',fav.has(c.url));star.textContent=fav.has(c.url)?'★':'☆'}};
  const footer=el('div','shelf-footer');
  const dot=el('span','dot');paintDot(dot,c.url);dots.set(c.url,dot);
- footer.append(dot,star);card.append(play,footer);return card;
+ const info=el('button','shelf-info info-btn');info.type='button';info.textContent='i';info.title='Información del canal';info.setAttribute('aria-label','Información de '+c.name);info.onclick=e=>{e.stopPropagation();showChannelInfo(c)};const status=el('span','shelf-status');status.append(dot,info);footer.append(status,star);card.append(play,footer);return card;
 }
 function paintDot(d,u){const s=st[u];d.className='dot '+(s==='1'?'g':s==='0'?'r':'u');d.title=s==='1'?'Online':s==='0'?'No responde':'Sin probar'}
 function channelCountries(c){
@@ -1487,9 +1495,9 @@ $('fsBtn').onclick=toggleFs;
 let idleT;
 const settingsOpen=()=>$('settingsModal').classList.contains('open');
 const modalOpen=()=>settingsOpen()||$('channelInfoModal').classList.contains('open');
-function locked(){return !selId||video.paused||modalOpen()||document.activeElement===$('search')||document.activeElement===$('pQ')||!!panel||player.querySelector('#topbar button:hover,.controls :hover,#drawer:hover')}
-function wake(){if(player.hidden)return;player.classList.add('ui-on');player.classList.remove('idle');clearTimeout(idleT);idleT=setTimeout(tick,4000)}
-function tick(){if(locked()){idleT=setTimeout(tick,1500);return}player.classList.remove('ui-on');player.classList.add('idle')}
+function locked(){return !selId||video.paused||modalOpen()||document.activeElement===$('search')||document.activeElement===$('pQ')||!!panel||(innerWidth<=650&&drawerOpen())||player.querySelector('#topbar button:hover,.controls :hover,#drawer:hover')}
+function wake(){if(player.hidden)return;player.classList.add('ui-on');player.classList.remove('idle');clearTimeout(idleT);idleT=setTimeout(tick,5000)}
+function tick(){if(innerWidth<=650&&drawerOpen()){player.classList.add('ui-on');player.classList.remove('idle');idleT=setTimeout(tick,1500);return}if(locked()){idleT=setTimeout(tick,1500);return}player.classList.remove('ui-on');player.classList.add('idle')}
 function hideUI(){setDrawer(false);clearTimeout(idleT);player.classList.remove('ui-on');player.classList.add('idle');const a=document.activeElement;if(a&&a!==document.body&&player.contains(a))a.blur()}
 
 /* ---------- botón Atrás ---------- */
@@ -1826,6 +1834,33 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 #drawer .quick-filter-row #filterToggle{order:1!important;flex:none!important;margin:0!important}
 #drawer .quick-filter-row #filterClose{order:2!important;flex:none!important;margin:0!important}
 #drawer .quick-filter-row #activeQuickFilters{order:3!important;flex:1 1 auto!important;min-width:0!important;margin:0!important;padding:0!important}
+</style>
+
+<style id="pulsar-two-line-controls-final">
+/* Primera fila: filtros a la izquierda y etiquetas a la derecha. */
+#drawer .quick-filter-row{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:.45rem!important;min-width:0!important;padding-bottom:.15rem!important}
+#drawer .quick-filter-row .filter-controls{display:inline-flex!important;align-items:center!important;gap:.3rem!important;flex:none!important}
+#drawer .quick-filter-row #filterToggle,#drawer .quick-filter-row #filterClose{flex:none!important;order:initial!important;margin:0!important}
+#drawer .quick-filter-row #activeQuickFilters{order:initial!important;flex:1 1 auto!important;min-width:0!important;margin:0!important;padding:0!important}
+/* Segunda fila, inmediatamente encima de los canales: Compacto / Lista o Explorar a la derecha. */
+#drawer .view-controls-row{order:3!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:.55rem!important;padding:.08rem .7rem .4rem!important;min-width:0!important;flex:none!important}
+#drawer .view-controls-row #viewToggle{flex:none!important;margin:0!important;min-height:2.25rem!important;font-size:.96rem!important;padding:.3rem .45rem!important}
+#drawer .view-controls-row #viewToggle svg{width:19px!important;height:19px!important}
+#drawer .view-controls-row #compactToggle{order:initial!important;flex:none!important;color:#fff!important;font-size:.9rem!important;font-weight:600!important;padding:.3rem .2rem!important;text-decoration:none!important}
+#drawer .view-controls-row #compactToggle.active{text-decoration:underline!important;text-decoration-color:#fff!important;text-underline-offset:4px!important}
+/* i informativa dentro de un círculo, igual que en la vista Lista. */
+#drawer .shelf-info.info-btn{display:inline-grid!important;place-items:center!important;box-sizing:border-box!important;width:1.2rem!important;height:1.2rem!important;min-width:1.2rem!important;padding:0!important;border:1.5px solid currentColor!important;border-radius:50%!important;background:transparent!important;color:#e7e8f2!important;font:700 .72rem/1 Arial,sans-serif!important;opacity:1!important;text-shadow:none!important}
+#drawer .shelf-status{gap:.4rem!important}
+</style>
+
+<style id="pulsar-search-first-and-compact-link">
+#drawer .search-with-fav{order:1!important;}
+#drawer .quick-filter-row{order:2!important;}
+#drawer .view-controls-row{order:3!important;}
+#drawer #dPanel{order:4!important;}
+#drawer #channelList{order:5!important;}
+#drawer .view-controls-row #compactToggle,
+#drawer .view-controls-row #compactToggle.active{font-weight:400!important;text-decoration:underline!important;text-decoration-color:currentColor!important;text-underline-offset:3px!important;color:#fff!important;}
 </style>
 </body>
 </html>
