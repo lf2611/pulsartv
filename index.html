@@ -1253,8 +1253,8 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   menu.innerHTML=drawer.classList.contains('open')?'<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>':'<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
   menu.setAttribute('aria-label',drawer.classList.contains('open')?'Cerrar canales y filtros':'Abrir canales y filtros');
  }
- menu.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();setDrawer(!drawerOpen());wake();sync()});
- tabs.addEventListener('click',e=>{if(portrait()&&e.target.closest('.sec')&&!drawerOpen()){setDrawer(true);sync()}});
+ menu.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const open=!drawer.classList.contains('open');drawer.classList.toggle('open',open);document.getElementById('player')?.classList.toggle('drawer-open',open);sync()});
+ tabs.addEventListener('click',e=>{if(portrait()&&e.target.closest('.sec')&&!drawer.classList.contains('open')){drawer.classList.add('open');document.getElementById('player')?.classList.add('drawer-open');sync()}});
  const obs=new MutationObserver(sync);
  obs.observe(drawer,{attributes:true,attributeFilter:['class']});
  window.addEventListener('resize',sync);window.addEventListener('orientationchange',sync);sync();
