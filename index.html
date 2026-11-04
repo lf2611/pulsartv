@@ -371,6 +371,40 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
 #drawer .d-secs .sec .ct,#topbar .d-secs .sec .ct{flex:0 0 auto;display:inline!important;font-size:.65rem!important;line-height:1!important;padding:0!important;margin:0!important;white-space:nowrap!important}
 #drawer .d-secs .sec .ct:empty,#topbar .d-secs .sec .ct:empty{display:none!important}
 #drawer #pClr[hidden],#pClr[hidden]{display:none!important}
+
+/* Ajustes finales: contadores, información y favoritos */
+#drawer .d-secs .sec .ct:not(:empty),#topbar .d-secs .sec .ct:not(:empty){
+ display:inline-flex!important;align-items:center;justify-content:center;
+ min-width:1.3rem!important;height:1.3rem!important;padding:0 .25rem!important;
+ border-radius:999px!important;background:#23b9ff!important;color:#061426!important;
+ font-size:.74rem!important;font-weight:800!important;line-height:1!important;
+ box-shadow:0 0 8px rgba(35,185,255,.55);white-space:nowrap!important;
+}
+#drawer .d-secs .sec,#topbar .d-secs .sec{flex-wrap:nowrap!important}
+.row .info-btn{font-family:Arial,sans-serif!important;font-size:.82rem!important;font-weight:700!important;
+ width:1.08rem!important;height:1.08rem!important;min-width:1.08rem!important;min-height:1.08rem!important;
+ padding:0!important;margin:.2rem .42rem!important;line-height:1!important;
+ border:1.5px solid currentColor!important;border-radius:50%!important;
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ text-shadow:none!important;box-sizing:border-box!important}
+.row .fav.on,#favBtn.on,#favBtn.on svg{color:#d88aff!important;fill:currentColor!important}
+.row .fav.on:hover,#favBtn.on:hover{color:#e8aaff!important}
+
+/* Corrección: degradado lateral continuo sin corte visible */
+@media not all and (max-width:650px) {
+ #drawer{background:linear-gradient(90deg,rgba(3,6,14,.84) 0%,rgba(3,6,14,.67) 38%,rgba(3,6,14,.38) 67%,rgba(3,6,14,.12) 88%,rgba(3,6,14,0) 100%)!important;border-right:0!important;box-shadow:none!important}
+}
+@media (min-width:651px), (orientation:landscape){
+ #drawer{background:linear-gradient(90deg,rgba(3,6,14,.84) 0%,rgba(3,6,14,.66) 38%,rgba(3,6,14,.35) 68%,rgba(3,6,14,.09) 90%,rgba(3,6,14,0) 100%)!important;border-right:0!important;box-shadow:none!important}
+ #mobileMenuBtn{display:grid!important;place-items:center}
+}
+/* Retrato: las pestañas solamente se muestran al abrir el menú. */
+@media (max-width:650px) and (orientation:portrait){
+ #logo{left:50%!important;top:.2rem!important;transform:translateX(-50%)!important;max-width:60vw!important}
+ #topbar .d-secs{display:none!important}
+ #player.drawer-open #topbar .d-secs{display:grid!important}
+ #player.drawer-open #logo{opacity:0!important}
+}
 </style>
 </head>
 <body>
@@ -848,7 +882,7 @@ function rowFor(c){
  pick.onclick=()=>{playChannel(c.url);if(innerWidth<=650)setDrawer(false)};
  const f=el('button','mini fav'+(fav.has(c.url)?' on':''));f.textContent=fav.has(c.url)?'★':'☆';f.title='Favorito';
  f.onclick=e=>{e.stopPropagation();fav.has(c.url)?fav.delete(c.url):fav.add(c.url);store.set('pulsar-fav',[...fav]);f.classList.toggle('on',fav.has(c.url));f.textContent=fav.has(c.url)?'★':'☆';if(flt.fav)renderRows()};
- const info=el('button','info-btn');info.textContent='ⓘ';info.title='Información del canal';info.setAttribute('aria-label','Información de '+c.name);info.onclick=e=>{e.stopPropagation();showChannelInfo(c)};r.append(dot,logo,pick,info,f);return r;
+ const info=el('button','info-btn');info.textContent='i';info.title='Información del canal';info.setAttribute('aria-label','Información de '+c.name);info.onclick=e=>{e.stopPropagation();showChannelInfo(c)};r.append(dot,logo,pick,info,f);return r;
 }
 function markSelected(){document.querySelectorAll('#channelList .row').forEach(r=>r.classList.toggle('sel',r.dataset.u===selId))}
 $('search').addEventListener('input',e=>{flt.q=e.target.value;renderSt();renderRows()});
