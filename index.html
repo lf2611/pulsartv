@@ -504,6 +504,13 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
  #player.drawer-open #hud .controls{pointer-events:auto!important}
  #player.drawer-open #mobileMenuBtn{position:relative!important;z-index:30!important;pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important}
 }
+
+/* Modales visibles tanto con F11 como con Fullscreen API sobre #player */
+#player > .mwrap{z-index:100;}
+/* Menú opaco hasta la zona de favoritos, difuminado al extremo derecho */
+@media (min-width:651px), (orientation:landscape){
+ #drawer{background:linear-gradient(90deg,rgba(3,6,14,.97) 0%,rgba(3,6,14,.95) 42%,rgba(3,6,14,.88) 70%,rgba(3,6,14,.65) 85%,rgba(3,6,14,0) 100%)!important;}
+}
 </style>
 </head>
 <body>
@@ -564,8 +571,6 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
    <button class="ib" id="fsBtn" title="Pantalla completa (F)" data-ic="fs"></button>
   </div>
  </div>
-</section>
-
 <!-- AJUSTES -->
 <div class="mwrap" id="settingsModal"><section class="modal">
  <div class="mhead"><h2>Ajustes</h2><button class="ib" id="closeSettings" data-ic="x" title="Cerrar" aria-label="Cerrar"></button></div>
@@ -586,6 +591,8 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
 <div class="mhead"><h2 id="channelInfoTitle">Información del canal</h2><button class="ib" id="closeChannelInfo" title="Cerrar" aria-label="Cerrar">✕</button></div>
 <div class="info-grid" id="channelInfoContent"></div>
 </section></div>
+</section>
+
 <div id="prog" hidden></div>
 <div id="toast" role="status"></div>
 
@@ -1079,7 +1086,7 @@ $('fsBtn').onclick=toggleFs;
 /* ---------- interfaz que se oculta sola ---------- */
 let idleT;
 const settingsOpen=()=>$('settingsModal').classList.contains('open');
-const modalOpen=settingsOpen;
+const modalOpen=()=>settingsOpen()||$('channelInfoModal').classList.contains('open');
 function locked(){return !selId||video.paused||modalOpen()||document.activeElement===$('search')||document.activeElement===$('pQ')||!!panel||player.querySelector('#topbar button:hover,.controls :hover,#drawer:hover')}
 function wake(){if(player.hidden)return;player.classList.add('ui-on');player.classList.remove('idle');clearTimeout(idleT);idleT=setTimeout(tick,4000)}
 function tick(){if(locked()){idleT=setTimeout(tick,1500);return}player.classList.remove('ui-on');player.classList.add('idle')}
@@ -1142,10 +1149,6 @@ $('importCustom').onclick=()=>{
 const closeSettings=()=>$('settingsModal').classList.remove('open');
 $('settingsBtn').onclick=async()=>{
  $('status').textContent='';
- // El modal está fuera de #player: salir del fullscreen antes de mostrarlo.
- if(fsActive()){
-  try{await exitFs()}catch(err){toast('No se pudo salir de pantalla completa');return}
- }
  renderCustomManage();$('settingsModal').classList.add('open');
 };
 $('closeSettings').onclick=closeSettings;
