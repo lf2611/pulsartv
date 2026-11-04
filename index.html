@@ -679,6 +679,7 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
 .shelf-footer .dot{flex:0 0 auto;margin:0}
 .shelf-footer .shelf-star{margin:0!important}
 </style>
+
 </head>
 <body>
 
@@ -700,18 +701,18 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
 
  <aside id="drawer" class="fade" aria-label="Canales">
   <div class="d-bar">
-   <div class="lights" role="group" aria-label="Estado de los canales">
-    <button class="lt g" data-s="g" aria-pressed="true" title="Online"><svg class="led" viewBox="0 0 20 20" aria-hidden="true"><circle class="ln" cx="10" cy="10" r="7.44"/><ellipse class="hl" cx="7.6" cy="7.1" rx="2.64" ry="1.68"/></svg><span class="n">0</span></button>
-    <button class="lt u" data-s="u" aria-pressed="true" title="Sin probar"><svg class="led" viewBox="0 0 20 20" aria-hidden="true"><circle class="ln" cx="10" cy="10" r="7.44"/><ellipse class="hl" cx="7.6" cy="7.1" rx="2.64" ry="1.68"/></svg><span class="n">0</span></button>
-    <button class="lt r" data-s="r" aria-pressed="false" title="No responden"><svg class="led" viewBox="0 0 20 20" aria-hidden="true"><circle class="ln" cx="10" cy="10" r="7.44"/><ellipse class="hl" cx="7.6" cy="7.1" rx="2.64" ry="1.68"/></svg><span class="n">0</span></button>
-   </div>
-   <div class="d-r">
+   <div class="status-block" role="group" aria-label="Estados y actualización">
+    <div class="lights" role="group" aria-label="Estado de los canales">
+     <button class="lt g" data-s="g" aria-pressed="true" title="Online"><span class="n">0</span></button>
+     <button class="lt u" data-s="u" aria-pressed="true" title="Sin probar"><span class="n">0</span></button>
+     <button class="lt r" data-s="r" aria-pressed="false" title="No responden"><span class="n">0</span></button>
+    </div>
     <button class="ib" id="refBtn" title="Actualizar todo" aria-label="Actualizar todo" data-ic="refresh"></button>
     <span id="refTxt"></span>
-    
    </div>
+   <button id="drawerCloseTop" type="button" aria-label="Cerrar menú" title="Cerrar menú">×</button>
   </div>
-  <div class="quick-filter-row"><button class="ib" id="viewToggle" type="button" title="Cambiar a vista de lista" aria-label="Cambiar a vista de lista"></button><div id="activeQuickFilters" class="quick-filters" aria-label="Filtros activos"></div><button id="filterToggle" type="button" aria-expanded="false" aria-label="Mostrar filtros"></button></div>
+  <div class="quick-filter-row"><button class="ib" id="viewToggle" type="button" title="Cambiar a vista de lista" aria-label="Cambiar a vista de lista"></button><button id="filterToggle" type="button" aria-expanded="false" aria-label="Mostrar filtros"></button><button id="filterClose" type="button" hidden aria-label="Cerrar filtros" title="Cerrar filtros">×</button><div id="activeQuickFilters" class="quick-filters" aria-label="Filtros activos"></div></div>
   <div class="d-panel" id="dPanel" hidden>
    <div class="filter-section" data-filter="country">
     <div class="filter-heading"><button class="filter-title" type="button" data-expand="country" aria-expanded="false"><span>País</span></button><div class="filter-tags" id="tags-country"></div><button class="filter-add" type="button" data-expand="country" aria-label="Abrir países">+</button></div>
@@ -992,8 +993,8 @@ let mode=store.get('pulsar-mode',null);if(mode!=='country'&&mode!=='lang')mode=n
 const MAINC=['AR','UY','CL','MX','CO','PE','ES','US','BR','GB','UK','IT','FR','DE'];
 const NAMEC={UK:'Reino Unido',XK:'Kosovo'};
 const dnR=(()=>{try{return new Intl.DisplayNames(['es'],{type:'region'})}catch{return null}})();
-function cname(c){if(NAMEC[c])return NAMEC[c];let n='';try{n=dnR?dnR.of(c):''}catch{}if(!n||n===c){const x=ctrs.find(y=>y.code===c);n=(x&&x.name)||c}return cap(n)}
-function lname(c){if(NAMES[c])return NAMES[c];let n='';try{n=dnL?dnL.of(c):''}catch{}if(!n||n===c){const l=langs.find(x=>x.code===c);n=(l&&l.name)||c}return cap(n)}
+function cname(c){if(String(c).toLowerCase()==='all')return 'Todos los países';if(NAMEC[c])return NAMEC[c];let n='';try{n=dnR?dnR.of(c):''}catch{}if(!n||n===c){const x=ctrs.find(y=>y.code===c);n=(x&&x.name)||c}return cap(n)}
+function lname(c){if(String(c).toLowerCase()==='all')return 'Todos los idiomas';if(NAMES[c])return NAMES[c];let n='';try{n=dnL?dnL.of(c):''}catch{}if(!n||n===c){const l=langs.find(x=>x.code===c);n=(l&&l.name)||c}return cap(n)}
 const det=(()=>{for(const l of(navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language])){const[p,r]=(l||'').split('-');if(!p)continue;const c=p.length===3?p.toLowerCase():D2[p.toLowerCase()];if(c)return{code:c,region:r&&r.length===2?r.toLowerCase():''}}return null})();
 function flag(code,region){
  const cc=region||FLAG[code],s=document.createElement('span');s.className='flag';
@@ -1131,7 +1132,7 @@ const el=(t,c)=>{const e=document.createElement(t);if(c)e.className=c;return e};
 
 /* ---------- filtros ---------- */
 const kindOK=(set,arr)=>(arr||[]).some(x=>set.has(x));
-const langMatch=c=>{const hasC=flt.allC||flt.ctrs.size>0,hasL=flt.allL||flt.langs.size>0;if(!hasC&&!hasL)return false;return(!hasC||flt.allC||kindOK(flt.ctrs,c.cts))&&(!hasL||flt.allL||kindOK(flt.langs,c.lgs))};
+const langMatch=c=>{const hasC=flt.allC||flt.ctrs.size>0,hasL=flt.allL||flt.langs.size>0;if(!hasC&&!hasL)return true;return(!hasC||flt.allC||kindOK(flt.ctrs,c.cts))&&(!hasL||flt.allL||kindOK(flt.langs,c.lgs))};
 const isCustomSelected=c=>!!(c.customIds||[]).some(id=>flt.custom.has(id));
 const isRegular=c=>!!((c.cts||[]).length||(c.lgs||[]).length);
 const catMatch=c=>!flt.cats.size||c.cats.some(k=>flt.cats.has(k));
@@ -1153,12 +1154,12 @@ const kAll=k=>k==='country'?'allC':k==='lang'?'allL':null;
 const kName=(k,c)=>k==='country'?cname(c):k==='lang'?lname(c):c;
 const saveView=()=>store.set('pulsar-view',{ctrs:[...flt.ctrs],langs:[...flt.langs],cats:[...flt.cats],custom:[...flt.custom],allC:flt.allC,allL:flt.allL,fav:flt.fav,last:selId});
 const hasSel=()=>flt.ctrs.size||flt.langs.size||flt.allC||flt.allL;
-let filtersOpen=false,expandedFilter=null;
-let channelView="explore";const quickMuted=new Set();
+let filtersOpen=false,expandedFilter=null;let showAllFilterLanguages=false;
+let channelView="explore";const quickSelected=new Set();
 function renderDrawer(){renderSecs();renderPanel();renderSt();renderRows();paintChk()}
 function renderLive(){renderSecs();renderPanel();renderSt();renderRows()}
 function renderSecs(){
- const toggle=$('filterToggle');if(toggle){toggle.classList.toggle('on',filtersOpen);toggle.setAttribute('aria-expanded',String(filtersOpen));toggle.innerHTML='<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M7 12h10M10 17h4"/><circle cx="8" cy="7" r="2" fill="currentColor"/><circle cx="15" cy="12" r="2" fill="currentColor"/></svg>';toggle.setAttribute('aria-label',filtersOpen?'Ocultar filtros':'Mostrar filtros');toggle.title=filtersOpen?'Cerrar filtros y volver a canales':'Abrir filtros'}
+ const toggle=$('filterToggle');if(toggle){toggle.classList.toggle('on',filtersOpen);toggle.setAttribute('aria-expanded',String(filtersOpen));toggle.innerHTML='<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M7 12h10M10 17h4"/><circle cx="8" cy="7" r="2" fill="currentColor"/><circle cx="15" cy="12" r="2" fill="currentColor"/></svg>';toggle.setAttribute('aria-label',filtersOpen?'Ocultar filtros':'Mostrar filtros');toggle.title=filtersOpen?'Filtros activos':'Abrir filtros'}const close=$('filterClose');if(close)close.hidden=!filtersOpen;
  document.querySelectorAll('.d-secs .sec').forEach(b=>{
   const active=(b.dataset.k==='filters')===filtersOpen;
   b.classList.toggle('open',active);
@@ -1167,7 +1168,7 @@ function renderSecs(){
 }
 function applyKind(k){if(k==='country'||k==='lang')loadNeeded()}
 function closePanel(){
- filtersOpen=false;expandedFilter=null;panel=null;renderSecs();renderPanel();renderSt();renderRows();
+ filtersOpen=false;expandedFilter=null;panel=null;showAllFilterLanguages=false;renderSecs();renderPanel();renderSt();renderRows();
 }
 async function openPanel(k){
  if(k==='channels'){closePanel();return}
@@ -1229,6 +1230,7 @@ function renderPanel(){
    let items=optionList(k).filter(o=>!stripq||strip(o.name).includes(stripq)||o.c.toLowerCase().includes(stripq));
    if(a&&!stripq)items.unshift({c:'*',name:'Todos',n:null});
    if(k==='cat')customLists.filter(x=>!stripq||strip(x.name).includes(stripq)).forEach(x=>items.unshift({c:'custom:'+x.id,name:x.name,n:null}));
+   if(k==='lang'&&!stripq&&!showAllFilterLanguages){const primary=['spa','eng','fra','ita','por','deu','zho','jpn','rus','ara'];const rank=new Map(primary.map((v,i)=>[v,i]));items=items.filter(o=>rank.has(o.c)||kSet('lang').has(o.c)).sort((a,b)=>(rank.get(a.c)??100)-(rank.get(b.c)??100));}
    if(!items.length){const none=el('div','p-none');none.textContent='Sin resultados';grid.append(none)}
    items.forEach(o=>{
     const btn=el('button','filter-option');btn.type='button';
@@ -1247,6 +1249,7 @@ function renderPanel(){
     };
     grid.append(btn);
    });
+   if(k==='lang'&&!stripq&&!showAllFilterLanguages){const more=el('button','filter-more-languages');more.type='button';more.textContent='Mostrar más idiomas';more.onclick=()=>{showAllFilterLanguages=true;fill(search.value)};grid.append(more)}
   }
   search.oninput=()=>fill(search.value);
   fill();
@@ -1273,23 +1276,28 @@ $('favBtn').onclick=()=>{flt.fav=!flt.fav;saveView();renderSt();renderRows()};
 const PAGE=300;let dots=new Map();
 function renderQuickFilters(){
  const box=$('activeQuickFilters');box.replaceChildren();box.hidden=filtersOpen;
- const chip=(name,key)=>{const muted=quickMuted.has(key);const b=el('button','quick-chip'+(muted?' muted':' active'));b.type='button';b.textContent=name;b.title=muted?'Mostrar '+name+' temporalmente':'Ocultar '+name+' temporalmente';b.setAttribute('aria-pressed',String(!muted));b.onclick=()=>{muted?quickMuted.delete(key):quickMuted.add(key);renderQuickFilters();renderSt();renderRows()};box.append(b)};
+ const available=new Set();
+ const chip=(name,key)=>{available.add(key);const selected=quickSelected.has(key);const b=el('button','quick-chip'+(selected?' active':' muted'));b.type='button';b.textContent=name;b.title=selected?'Desactivar filtro '+name:'Filtrar por '+name;b.setAttribute('aria-pressed',String(selected));b.onclick=()=>{selected?quickSelected.delete(key):quickSelected.add(key);renderRows()};box.append(b)};
  if(flt.allC)chip('Todos los países','country:*');else for(const c of flt.ctrs)chip(cname(c),'country:'+c);
  if(flt.allL)chip('Todos los idiomas','lang:*');else for(const c of flt.langs)chip(lname(c),'lang:'+c);
  for(const c of flt.cats)chip(c,'cat:'+c);
  for(const id of flt.custom){const x=customLists.find(x=>x.id===id);if(x)chip(x.name,'custom:'+id)}
+ for(const key of [...quickSelected])if(!available.has(key))quickSelected.delete(key);
  if(!box.childElementCount){const link=el('button','quick-filter-link');link.type='button';link.textContent='Activar filtros';link.onclick=()=>openPanel('filters');box.append(link)}
 }
 function quickAllows(c){
- if(flt.allC&&quickMuted.has('country:*'))return false;
- if(flt.allL&&quickMuted.has('lang:*'))return false;
- if(!flt.allC&&flt.ctrs.size&&![...flt.ctrs].some(x=>!quickMuted.has('country:'+x)&&(c.cts||[]).includes(x)))return false;
- if(!flt.allL&&flt.langs.size&&![...flt.langs].some(x=>!quickMuted.has('lang:'+x)&&(c.lgs||[]).includes(x)))return false;
- if(flt.cats.size&&!((c.cats||[]).some(x=>flt.cats.has(x)&&!quickMuted.has('cat:'+x))))return false;
- if(flt.custom.size&&isCustomSelected(c)&&!(c.customIds||[]).some(x=>flt.custom.has(x)&&!quickMuted.has('custom:'+x))&&!isRegular(c))return false;
- return true;
+ if(!quickSelected.size)return true;
+ return [...quickSelected].some(key=>{
+  const [type,value]=key.split(':');
+  if(type==='country')return value==='*'||(c.cts||[]).includes(value);
+  if(type==='lang')return value==='*'||(c.lgs||[]).includes(value);
+  if(type==='cat')return (c.cats||[]).includes(value);
+  if(type==='custom')return (c.customIds||[]).includes(value);
+  return false;
+ });
 }
-$('filterToggle').onclick=()=>filtersOpen?closePanel():openPanel('filters');
+$('filterToggle').onclick=()=>filtersOpen?closePanel():openPanel('filters');$('filterClose').onclick=closePanel;
+$('drawerCloseTop').onclick=()=>setDrawer(false);
 function paintViewToggle(){const b=$('viewToggle');const next=channelView==='explore'?'list':'explore';b.innerHTML=next==='list'?'<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/><path d="M9 6h12M9 12h12M9 18h12"/></svg><span>Lista</span>':'<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/></svg><span>Explorar</span>';b.title='Cambiar a vista '+(next==='list'?'de lista':'de exploración');b.setAttribute('aria-label',b.title)}
 $('viewToggle').onclick=()=>{channelView=channelView==='explore'?'list':'explore';paintViewToggle();renderRows()};paintViewToggle();
 const categoryScroll=new Map();
@@ -1309,14 +1317,21 @@ function renderRows(){
   heading.textContent=name+' ('+items.length+')';section.append(heading);
   if(items.length){
    const track=el('div','category-track');track.dataset.category=name;track.setAttribute('aria-label','Canales de '+name);
-   let shown=0;const step=45;
+   let shown=0;const step=24;
    const load=()=>{
     const end=Math.min(shown+step,items.length),frag=document.createDocumentFragment();
     for(let i=shown;i<end;i++)frag.append(shelfCard(items[i]));
     shown=end;track.append(frag);
    };
-   load();while(shown<items.length)load();
-   section.append(track);box.append(section);
+   load();
+   section.append(track);
+   if(shown<items.length){
+    const more=el('button','more shelf-more');
+    const update=()=>{more.textContent='Ver más ('+(items.length-shown)+')';};
+    update();more.onclick=()=>{load();if(shown>=items.length)more.remove();else update()};
+    section.append(more);
+   }
+   box.append(section);
    
   }
  }
@@ -1338,11 +1353,11 @@ function shelfCard(c){
 function paintDot(d,u){const s=st[u];d.className='dot '+(s==='1'?'g':s==='0'?'r':'u');d.title=s==='1'?'Online':s==='0'?'No responde':'Sin probar'}
 function channelCountries(c){
  const codes=[...new Set([...(c.cts||[]),...(c.country||'').split(/[;,]/).map(x=>x.trim()).filter(Boolean)])];
- return codes.map(code=>{const item=ctrs.find(x=>x.code.toLowerCase()===code.toLowerCase());return item?item.name:code.toUpperCase()}).join(', ');
+ return codes.map(code=>{const item=ctrs.find(x=>x.code.toLowerCase()===code.toLowerCase());return code.toLowerCase()==='all'?'Todos los países':item?cname(code.toUpperCase()):code.toUpperCase()}).join(', ');
 }
 function channelLanguages(c){
  const codes=[...new Set([...(c.lgs||[]),...(c.tvgLanguage||'').split(/[;,]/).map(x=>x.trim()).filter(Boolean)])];
- return codes.map(code=>{const item=langs.find(x=>x.code.toLowerCase()===code.toLowerCase());return item?item.name:code}).join(', ');
+ return codes.map(code=>{const item=langs.find(x=>x.code.toLowerCase()===code.toLowerCase());return code.toLowerCase()==='all'?'Todos los idiomas':item?lname(code):code}).join(', ');
 }
 function channelMeta(c){return [channelCountries(c),channelLanguages(c),(c.cats||[]).join(', ')].filter(Boolean).join(' · ')}
 function showChannelInfo(c){
@@ -1370,7 +1385,7 @@ function markSelected(){document.querySelectorAll('#channelList .row,#channelLis
 $('search').addEventListener('input',e=>{flt.q=e.target.value;renderSt();renderRows()});
 
 /* ---------- estado verde / rojo ---------- */
-let stT=0;const schedSt=()=>{if(stT)return;stT=setTimeout(()=>{stT=0;renderSt();renderRows()},250)};
+let stT=0;const schedSt=()=>{if(stT)return;stT=setTimeout(()=>{stT=0;renderSt()},350)};
 function setSt(u,v){st[u]=v;const d=dots.get(u);if(d)paintDot(d,u);saveSt();schedSt()}
 async function probe(u){
  const go=async(opt)=>{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),8000);try{return await fetch(u,{...opt,signal:ac.signal,cache:'no-store'})}finally{clearTimeout(t)}};
@@ -1406,7 +1421,7 @@ $('refBtn').onclick=refreshEverything;
 
 /* ---------- reproducción ---------- */
 let playTok=0,playTO;
-const spin=on=>{$('spin').hidden=!on};
+const spin=on=>{$('spin').hidden=!on;if(on&&$('pausedOverlay'))$('pausedOverlay').hidden=true;else if($('pausedOverlay'))$('pausedOverlay').hidden=!(video.paused&&!video.ended&&!!(video.currentSrc||video.getAttribute('src'))&&!!selId)};
 function setNowLogo(c){
  const box=$('nowLogo');box.replaceChildren();
  const url=c&&c.tvgLogo;
@@ -1445,13 +1460,13 @@ $('prevBtn').onclick=()=>changeChannel(-1);$('nextBtn').onclick=()=>changeChanne
 const togglePlay=()=>{if(!video.currentSrc&&!video.getAttribute('src'))return;video.paused?video.play().catch(()=>{}):video.pause()};
 $('playBtn').onclick=togglePlay;
 const pausedOverlay=$('pausedOverlay');
-const syncPausedOverlay=()=>{pausedOverlay.hidden=!(video.paused&&!video.ended&&!!(video.currentSrc||video.getAttribute('src'))&&!!selId)};
+const syncPausedOverlay=()=>{pausedOverlay.hidden=!($('spin').hidden&&video.paused&&!video.ended&&!!(video.currentSrc||video.getAttribute('src'))&&!!selId)};
 $('resumeCenter').onclick=()=>{video.play().catch(()=>{});wake()};
 video.addEventListener('pause',syncPausedOverlay);
 video.addEventListener('play',syncPausedOverlay);
 video.addEventListener('emptied',syncPausedOverlay);
 video.addEventListener('ended',syncPausedOverlay);
-video.addEventListener('loadedmetadata',syncPausedOverlay);
+video.addEventListener('loadedmetadata',syncPausedOverlay);video.addEventListener('waiting',syncPausedOverlay);
 
 const syncPlay=()=>{$('playBtn').innerHTML=video.paused?ic.play:ic.pause};
 const syncVol=()=>{$('muteBtn').innerHTML=(video.muted||video.volume===0)?ic.mute:ic.vol;$('vol').value=video.muted?0:video.volume};
@@ -1767,5 +1782,50 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
  },true);
 })();
 </script>
+<style id="pulsar-final-ui-fixes">
+/* Estado activo violeta, cierre en extremo derecho de la misma fila */
+#drawer .quick-filter-row{align-items:center!important}
+#drawer #filterToggle.on{background:#8435e9!important;color:#fff!important;border-color:#8435e9!important;box-shadow:0 0 0 1px rgba(132,53,233,.28)!important}
+#drawer #filterClose{margin-left:0!important;flex:none!important;width:2.6rem;height:2.6rem;place-items:center;background:transparent;border:0;color:#8435e9;font-size:2.3rem;font-weight:600;line-height:1;cursor:pointer}
+#drawer #filterClose:not([hidden]){display:grid!important}
+#drawer #filterClose[hidden]{display:none!important}
+/* Filtros rápidos: inicialmente desactivados, activos en blanco */
+#drawer .quick-chip.muted{background:#15151b!important;color:#b4b4be!important;border:1px solid #4c4c55!important;opacity:1!important}
+#drawer .quick-chip.active{background:#f8f8fa!important;color:#111116!important;border:1px solid #f8f8fa!important;opacity:1!important}
+/* Fondo blanco translúcido para los logotipos de Explorar */
+#drawer .shelf-logo{background:#fff!important}
+#drawer #filterToggle{width:2.75rem!important;height:2.75rem!important;min-width:2.75rem!important;padding:.22rem!important}
+#drawer #filterToggle svg{width:24px!important;height:24px!important}
+#drawer .quick-filter-row{justify-content:flex-start!important}
+#drawer #activeQuickFilters{min-width:0}
+#drawer #filterClose{order:4!important;color:#a66aff!important}
+#drawer #filterToggle{order:3!important}
+#drawer #drawerCloseTop{margin-left:auto!important;flex:none!important;width:3rem;height:3rem;border:0;background:transparent;color:#fff;font-size:2.65rem;line-height:1;display:grid;place-items:center;cursor:pointer;touch-action:manipulation}
+#drawer .d-r{flex:1!important;min-width:0!important}
+#drawer .filter-more-languages{display:block;width:100%;margin:.65rem 0 .2rem;padding:.7rem;border:1px solid rgba(166,106,255,.6);border-radius:.65rem;background:rgba(132,53,233,.16);color:#e4cfff;font-size:1rem;font-weight:700;cursor:pointer}
+</style>
+
+<style id="pulsar-status-and-filter-layout">
+/* Fila superior: bloque de estado autónomo a la izquierda; cierre a la derecha. */
+#drawer .d-bar{display:flex!important;align-items:center!important;justify-content:space-between!important;width:100%;gap:.5rem!important}
+#drawer .status-block{display:flex;align-items:center;justify-content:flex-start;gap:.4rem;flex:0 1 auto;min-width:0}
+#drawer .status-block .lights{display:flex!important;align-items:center;justify-content:flex-start!important;gap:.52rem!important;flex:none!important}
+#drawer .status-block .lt{display:inline-flex!important;align-items:center;justify-content:center;min-width:1.6rem;padding:.2rem .1rem!important;cursor:pointer}
+#drawer .status-block .lt .n{font-size:1.1rem!important;font-weight:800!important;line-height:1.2;font-variant-numeric:tabular-nums}
+#drawer .status-block .lt.g .n{color:#37d873!important}
+#drawer .status-block .lt.u .n{color:#f8f8ff!important}
+#drawer .status-block .lt.r .n{color:#ff575e!important}
+#drawer .status-block .lt[aria-pressed="false"] .n{opacity:.48}
+#drawer .status-block #refBtn{flex:none!important;order:initial!important}
+#drawer .status-block #refTxt{flex:none!important;order:initial!important;min-width:0!important;max-width:4rem!important;font-size:.7rem!important}
+#drawer #drawerCloseTop{margin:0 0 0 auto!important;flex:none!important;width:3.25rem!important;height:3.25rem!important;border-radius:50%!important;background:rgba(132,53,233,.26)!important;color:#fff!important;border:1px solid rgba(166,106,255,.45)!important;font-size:2.9rem!important;line-height:1!important;display:grid!important;place-items:center!important;cursor:pointer}
+#drawer #drawerCloseTop:active{background:#8435e9!important}
+/* Vista + filtro + X + etiquetas: orden estable de izquierda a derecha. */
+#drawer .quick-filter-row{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:.38rem!important}
+#drawer .quick-filter-row #viewToggle{order:0!important;flex:none!important}
+#drawer .quick-filter-row #filterToggle{order:1!important;flex:none!important;margin:0!important}
+#drawer .quick-filter-row #filterClose{order:2!important;flex:none!important;margin:0!important}
+#drawer .quick-filter-row #activeQuickFilters{order:3!important;flex:1 1 auto!important;min-width:0!important;margin:0!important;padding:0!important}
+</style>
 </body>
 </html>
