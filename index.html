@@ -571,19 +571,41 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
    <button class="ib" id="fsBtn" title="Pantalla completa (F)" data-ic="fs"></button>
   </div>
  </div>
+<style id="settings-compact-style">
+#settingsModal .modal{width:min(520px,94vw);max-height:88vh;overflow-y:auto}
+#settingsModal .settings-group{padding:14px 0 16px;border-bottom:1px solid rgba(255,255,255,.17)}
+#settingsModal .settings-group:last-of-type{border-bottom:0}
+#settingsModal .settings-group h3{font-size:1.03rem;margin:0 0 12px;color:#f5f5fb}
+#settingsModal .settings-group h4{font-size:.92rem;margin:18px 0 8px}
+#settingsModal .settings-line{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:10px 0;flex-wrap:wrap}
+#settingsModal .settings-line label,#settingsModal .settings-line span{font-size:.92rem}
+#settingsModal #interfaceLanguage{min-width:140px;max-width:210px;padding:7px 9px}
+#settingsModal .compact-scale{display:flex;align-items:center;gap:9px}
+#settingsModal .compact-scale .btn{min-width:36px;padding:5px 9px;font-size:1.2rem}
+#settingsModal #scaleVal{min-width:48px;text-align:center;font-size:.92rem}
+#settingsModal .settings-note{font-size:.85rem;opacity:.77;line-height:1.4;margin:0 0 12px}
+#settingsModal .settings-file{margin-top:15px;padding:12px;border:1px dashed rgba(255,255,255,.25);border-radius:10px;display:flex;flex-direction:column;gap:10px}
+#settingsModal .settings-file label{font-size:.88rem}
+#settingsModal .settings-file input{max-width:100%;font-size:.85rem}
+#settingsModal .settings-file .btn{align-self:flex-start}
+</style>
+
 <!-- AJUSTES -->
 <div class="mwrap" id="settingsModal"><section class="modal">
  <div class="mhead"><h2>Ajustes</h2><button class="ib" id="closeSettings" data-ic="x" title="Cerrar" aria-label="Cerrar"></button></div>
- <h3>Tamaño de la interfaz</h3>
- <div class="field"><label for="fontScale"><b id="scaleVal"></b></label><div class="scale-row"><button class="btn" id="scaleDown" aria-label="Reducir tamaño">−</button><input type="range" id="fontScale" min="0.8" max="2.2" step="0.1"><button class="btn" id="scaleUp" aria-label="Aumentar tamaño">+</button></div></div>
- <h3>Importar lista M3U</h3>
+
+ <div class="settings-group"><h3>Interfaz</h3>
+  <div class="settings-line"><label for="interfaceLanguage">Idioma de la interfaz</label><select id="interfaceLanguage" aria-label="Idioma de la interfaz"><option value="es">Español</option></select></div>
+  <div class="settings-line"><span>Tamaño de la interfaz</span><div class="compact-scale"><button class="btn" id="scaleDown" aria-label="Reducir tamaño">−</button><strong id="scaleVal">100%</strong><button class="btn" id="scaleUp" aria-label="Aumentar tamaño">+</button><input type="range" id="fontScale" min="0.8" max="2.2" step="0.1" hidden aria-label="Tamaño de la interfaz"></div></div>
+ </div>
+ <div class="settings-group"><h3>Listas M3U</h3><p class="settings-note">Agregá canales desde una dirección web o desde un archivo M3U de tu dispositivo.</p>
   <div class="field"><label for="customName">Nombre de la lista</label><input id="customName" type="text" placeholder="Ej.: Mis canales" maxlength="70"></div>
-  <div class="field"><label for="customUrl">URL de la lista M3U</label><input id="customUrl" type="url" placeholder="https://ejemplo.com/canales.m3u" inputmode="url"></div>
-  <div class="macts left"><button class="btn" id="importCustom">Importar lista</button></div>
+  <div class="field"><label for="customUrl">Dirección web (URL)</label><input id="customUrl" type="url" placeholder="https://ejemplo.com/canales.m3u" inputmode="url"></div>
+  <div class="macts left"><button class="btn" id="importCustom">Importar desde URL</button></div>
+  <div class="settings-file"><label for="customFile">O seleccioná un archivo .m3u / .m3u8</label><input id="customFile" type="file" accept=".m3u,.m3u8,audio/x-mpegurl,application/vnd.apple.mpegurl,text/plain"><button class="btn" id="importCustomFile">Importar archivo</button></div>
   <div id="customStatus" class="hint" role="status"></div>
-  <h3>Listas importadas</h3><div id="customManage"></div>
-  <h3>Canales</h3>
- <div class="macts left"><button class="btn" id="refreshAll" title="Vuelve a bajar todas las listas que ya tenés">Actualizar estado canales</button><button class="btn" id="wipeAll" title="Borra canales, estados y filtros guardados">Borrar datos</button></div>
+  <h4>Listas importadas</h4><div id="customManage"></div>
+ </div>
  <div id="status" class="hint" role="status"></div>
 </section></div>
 
@@ -1115,10 +1137,10 @@ function renderCustomManage(){
  box.className='';
  customLists.forEach(x=>{
   const r=el('div','custom-manage-row'),name=el('span'),update=el('button','btn small'),remove=el('button','btn small');
-  name.textContent=x.name;name.title=x.url;update.textContent='Actualizar';remove.textContent='Eliminar';
+  name.textContent=x.name;name.title=x.source==='file'?'Archivo local: '+(x.filename||x.name):x.url;update.textContent='Actualizar';remove.textContent='Eliminar';
   update.onclick=()=>importCustomList(x,true);remove.onclick=()=>{
    if(!confirm('¿Eliminar la lista «'+x.name+'»?'))return;
-   customLists=customLists.filter(y=>y.id!==x.id);flt.custom.delete(x.id);
+   customLists=customLists.filter(y=>y.id!==x.id);flt.custom.delete(x.id);if(x.source==='file')DB.set('m3u-file-'+x.id,null);
    for(const [u,c] of chMap){c.customIds=(c.customIds||[]).filter(id=>id!==x.id);if(!c.customIds.length&&!(c.lgs||[]).length&&!(c.cts||[]).length)chMap.delete(u)}
    store.set('pulsar-custom-lists',customLists);saveView();saveData();onData(true);renderCustomManage();renderDrawer();
   };r.append(name,update,remove);box.append(r)
@@ -1127,7 +1149,7 @@ function renderCustomManage(){
 async function importCustomList(item,refresh=false){
  const btn=$('importCustom'),status=$('customStatus');btn.disabled=true;status.textContent='Descargando lista…';
  try{
-  const txt=await fetchText(item.url),items=parseM3U(txt);
+  const txt=item.source==='file'?await DB.get('m3u-file-'+item.id):await fetchText(item.url),items=parseM3U(txt||'');
   if(!items.length)throw Error('No se encontraron canales válidos en la lista M3U.');
   const urls=new Set(items.map(x=>x.url));
   for(const[u,c]of chMap){if((c.customIds||[]).includes(item.id)&&!urls.has(u)){c.customIds=c.customIds.filter(id=>id!==item.id);if(!c.customIds.length&&!(c.lgs||[]).length&&!(c.cts||[]).length)chMap.delete(u)}}
@@ -1136,7 +1158,7 @@ async function importCustomList(item,refresh=false){
   store.set('pulsar-custom-lists',customLists);saveView();saveData();onData(true);renderCustomManage();renderDrawer();
   status.textContent=items.length+' canales '+(refresh?'actualizados':'importados')+' en «'+item.name+'».';
   if(!refresh){$('customName').value='';$('customUrl').value=''}
- }catch(e){status.textContent='No se pudo importar: '+e.message+'. La URL debe permitir descargas desde el navegador (CORS).'}
+ }catch(e){status.textContent='No se pudo importar: '+e.message+(item.source==='file'?'':' La URL debe permitir descargas desde el navegador (CORS).')}
  finally{btn.disabled=false}
 }
 $('importCustom').onclick=()=>{
@@ -1152,20 +1174,17 @@ $('settingsBtn').onclick=async()=>{
  renderCustomManage();$('settingsModal').classList.add('open');
 };
 $('closeSettings').onclick=closeSettings;
-$('refreshAll').onclick=async()=>{
- closeSettings();
- if(!channels.length){toast('Todavía no hay canales para actualizar');return}
- toast('Actualizando todos los canales…');
- await refreshCatalog(true);rebuild();renderLive();
-};
-$('wipeAll').onclick=()=>{
- if(!confirm('¿Borrar los datos? Se borran los canales, estados y filtros guardados.'))return;
- stopVideo();selId=null;
- chMap.clear();cnt={};ccnt={};st={};channels=[];
- catalogUpdated=0;DB.set('api-catalog-v1',null);
- flt.ctrs.clear();flt.langs.clear();flt.cats.clear();flt.custom.clear();customLists=[];store.set('pulsar-custom-lists',[]);flt.allC=flt.allL=false;flt.fav=false;flt.q='';$('search').value='';
- DB.set('chdata',null);DB.set('status',{});saveView();
- closeSettings();renderDrawer();newSearch();toast('Datos borrados');
+$('importCustomFile').onclick=async()=>{
+ const file=$('customFile').files[0],status=$('customStatus');
+ if(!file){status.textContent='Seleccioná un archivo M3U.';return}
+ const name=$('customName').value.trim()||file.name.replace(/\.m3u8?$/i,'');
+ const item={id:'f'+Date.now().toString(36),name,url:'file:'+file.name,source:'file',filename:file.name};
+ const btn=$('importCustomFile');btn.disabled=true;
+ try{const text=await file.text();if(!parseM3U(text).length)throw Error('El archivo no contiene canales M3U válidos.');
+  if(!await DB.set('m3u-file-'+item.id,text))throw Error('No se pudo guardar el archivo localmente.');
+  await importCustomList(item);$('customFile').value='';
+ }catch(e){status.textContent='No se pudo importar: '+e.message}
+ finally{btn.disabled=false}
 };
 document.querySelectorAll('.mwrap').forEach(m=>m.addEventListener('mousedown',e=>{if(e.target===m)m.classList.remove('open')}));
 $('edge').addEventListener('mouseenter',()=>{wake();setDrawer(true)});
@@ -1261,6 +1280,84 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
  const obs=new MutationObserver(sync);
  obs.observe(drawer,{attributes:true,attributeFilter:['class']});
  window.addEventListener('resize',sync);window.addEventListener('orientationchange',sync);sync();
+})();
+</script>
+<script>
+/* Pulsar TV: todos los idiomas en un único archivo locales/idiomas.json */
+(()=>{
+ const LOCALES='./locales/idiomas.json';let dictionary={},active='es';
+ const original=new WeakMap();const attributes=new WeakMap();
+ const allowed=['title','aria-label','placeholder','alt'];
+ const norm=s=>s.trim();
+ function translate(s){
+   if(!s||!s.trim())return s;
+   const key=norm(s);const translated=dictionary[key];
+   if(typeof translated==='string')return s.replace(key,translated);
+   // Traduce segmentos etiquetados en mensajes compuestos, sin alterar números ni nombres propios.
+   let result=s;
+   for(const [k,v] of Object.entries(dictionary)){
+     if(k.length<4||k===v||!result.includes(k))continue;
+     result=result.split(k).join(v);
+   }
+   return result;
+ }
+ function applyNode(node){
+   if(node.nodeType===3){
+     if(!node.parentElement||node.parentElement.closest('script,style,textarea,option[data-no-i18n]'))return;
+     const now=node.nodeValue;
+     const prev=original.get(node);
+     const source=prev&&prev.translated===now?prev.source:now;
+     const translated=translate(source);
+     original.set(node,{source,translated});
+     if(now!==translated)node.nodeValue=translated;
+   }else if(node.nodeType===1){
+     if(node.matches('script,style'))return;
+     let saved=attributes.get(node)||{};
+     for(const attr of allowed){
+       if(!node.hasAttribute(attr))continue;
+       const now=node.getAttribute(attr);const prev=saved[attr];
+       const source=prev&&prev.translated===now?prev.source:now;
+       const translated=translate(source);saved[attr]={source,translated};
+       if(now!==translated)node.setAttribute(attr,translated);
+     }
+     attributes.set(node,saved);
+     for(const child of node.childNodes)applyNode(child);
+   }
+ }
+ let busy=false;
+ const observer=new MutationObserver(records=>{
+   if(busy)return;busy=true;
+   try{for(const r of records){
+     if(r.type==='characterData')applyNode(r.target);
+     else if(r.type==='attributes')applyNode(r.target);
+     else for(const n of r.addedNodes)applyNode(n);
+   }}finally{busy=false}
+ });
+ async function boot(){
+   const selector=document.getElementById('interfaceLanguage');if(!selector)return;
+   try{
+     const res=await fetch(LOCALES,{cache:'no-cache'});if(!res.ok)throw Error('idiomas.json');
+     const index=await res.json();const entries=index.languages||{};
+     selector.replaceChildren();
+     for(const [code,entry] of Object.entries(entries)){
+       if(!entry||typeof entry.translations!=='object')continue;
+       const option=document.createElement('option');option.value=code;option.textContent=entry.name||code;selector.append(option);
+     }
+     const codes=[...selector.options].map(x=>x.value);
+     if(!codes.length)throw Error('No hay idiomas disponibles');
+     function setLanguage(code){
+       const entry=entries[code];if(!entry)return;
+       dictionary=entry.translations||{};active=code;selector.value=code;
+       document.documentElement.lang=code;localStorage.setItem('pulsar-ui-language',code);
+       applyNode(document.body);
+     }
+     selector.addEventListener('change',()=>setLanguage(selector.value));
+     const saved=localStorage.getItem('pulsar-ui-language');
+     setLanguage(codes.includes(saved)?saved:(codes.includes(index.default)?index.default:codes[0]));
+     observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:allowed});
+   }catch(e){console.warn('No se pudo cargar idiomas.json:',e)}
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
 </body>
