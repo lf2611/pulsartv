@@ -217,7 +217,7 @@ svg{width:1.5rem;height:1.5rem;fill:none;stroke:currentColor;stroke-width:1.75;s
 #empty img{display:block;margin:0 auto;height:min(32vh,16.8rem);width:auto;animation:breathe 3.6s ease-in-out infinite}
 @keyframes breathe{0%,100%{opacity:.55;transform:scale(.96)}50%{opacity:1;transform:scale(1.04)}}
 @media(prefers-reduced-motion:reduce){#empty img{animation:none}}
-#drawer.panel-open .d-bar,#drawer.panel-open #search,#drawer.panel-open #channelList{display:none}
+#drawer.panel-open #search,#drawer.panel-open #channelList{display:none}
 
 .d-panel{flex:none;margin:.2rem .8rem;padding:.2rem 0;text-shadow:none}
 .p-top{display:flex;flex-direction:column;align-items:stretch;gap:.5rem;margin-bottom:.7rem}
@@ -310,6 +310,60 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
 #channelInfoModal .info-value{min-width:0;overflow-wrap:anywhere;user-select:text}
 #channelInfoModal .info-value a{color:#a9cbff}
 #nowMeta{font-size:.86rem;font-weight:400;color:rgba(235,239,247,.85);line-height:1.35;text-shadow:0 1px 4px #000,0 2px 7px #000}
+
+/* Menú unificado: cuatro pestañas, semáforos fijos, contenido variable */
+.d-secs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:.15rem!important;padding:.55rem .45rem .25rem!important;align-items:stretch!important}
+.sec{display:flex;flex-direction:column;justify-content:center;align-items:center;min-width:0;gap:.16rem;padding:.5rem .12rem .4rem!important;border-bottom:2px solid transparent;color:#9da8bb!important;font-size:clamp(.66rem,2.1vw,.89rem)!important;letter-spacing:.025em!important;font-weight:500!important;white-space:nowrap;text-align:center}
+.sec.open{color:#fff!important;border-bottom-color:#fff;font-weight:600!important}
+.sec .ct{font-size:.65rem;min-width:0;padding:0 .2rem;line-height:1rem}
+#drawer .d-bar{display:flex!important;flex:none;order:1;padding:.6rem .8rem .4rem;align-items:center}
+#drawer .d-secs{order:0}
+#drawer #dPanel{order:3;margin:.15rem .65rem 0!important;padding:0!important;flex:1;min-height:0;display:flex;flex-direction:column}
+#drawer #dPanel[hidden]{display:none!important}
+#drawer #search{order:2;flex:none}
+#drawer #channelList{order:3;min-height:0;flex:1}
+#drawer.panel-open #search,#drawer.panel-open #channelList{display:none!important}
+#drawer.panel-open #dPanel{display:flex!important}
+#drawer .p-pick{display:flex;flex-direction:column;flex:1;min-height:0}
+#drawer .p-search{flex:none;margin-bottom:.35rem}
+#drawer .p-top{order:1;display:flex!important;flex-direction:row;align-items:flex-start;gap:.45rem;margin:0 0 .45rem!important;padding:.15rem 0 .35rem!important;border-top:0!important;border-bottom:1px solid rgba(255,255,255,.12)}
+#drawer .p-sel{flex:1;min-width:0;max-height:5.4rem;overflow-y:auto;align-items:center}
+#drawer #pClr{flex:none;font-size:.75rem!important;padding:.32rem .55rem!important;min-height:1.9rem!important;background:rgba(255,255,255,.12);color:#fff;border-radius:.4rem}
+#drawer #pClr:disabled{opacity:.4}
+#drawer .p-list{order:2;flex:1;min-height:0;max-height:none!important;overflow-y:auto}
+@media(max-width:650px) and (orientation:portrait){#drawer .d-secs{padding-top:6.8rem!important}}
+
+/* Vista vertical móvil: navegación superior y controles inferiores */
+#mobileMenuBtn{display:none}
+@media (max-width:650px) and (orientation:portrait){
+ #topbar{height:7.8rem;align-items:flex-start;padding:.3rem .7rem;z-index:16;background:linear-gradient(to bottom,rgba(0,0,0,.43),transparent)}
+ #logo{top:.15rem;left:.6rem;transform:none;height:3rem;max-width:66vw}
+ #settingsBtn{position:absolute;right:.55rem;top:.35rem;z-index:2;width:2.8rem;height:2.8rem}
+ #topbar .d-secs{position:absolute;left:.35rem;right:.35rem;top:3.2rem;width:auto;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));padding:.1rem .1rem .3rem!important;z-index:2}
+ #topbar .sec{font-size:clamp(.67rem,2.7vw,.88rem)!important;padding:.42rem .05rem!important}
+ #topbar .sec .ct{font-size:.6rem}
+ #drawer{width:100%!important;max-width:none!important;top:0!important;bottom:0!important;padding-top:7.9rem!important;z-index:14!important;background:linear-gradient(105deg,rgba(3,6,14,.94),rgba(3,6,14,.83))!important;transform:translateX(-103%)}
+ #drawer.open{transform:translateX(0)}
+ #drawer .d-secs{display:none!important}
+ #player.drawer-open #topbar{z-index:16}
+ #player.drawer-open #logo{opacity:0}
+ #edgeTab,#edge{display:none!important}
+ #hud{bottom:0;left:0;right:0;padding:.55rem .6rem max(.5rem,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:stretch;gap:.25rem;z-index:10}
+ #hud>div:first-child{width:100%;padding:0 .4rem;min-width:0}
+ #nowName{font-size:1.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ #nowMeta{font-size:.75rem;max-width:94vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ #hud .controls{width:100%;display:flex;justify-content:space-between;gap:0}
+ #hud .controls .ib{width:clamp(2.45rem,12vw,3.2rem);height:3rem}
+ #mobileMenuBtn{display:grid;place-items:center;flex:none}
+ #player.drawer-open #hud{padding-left:.6rem}
+ #drawer .d-bar{padding-top:.2rem}
+ #drawer #channelList{padding-bottom:6rem}
+}
+
+/* Logotipos del catálogo JSON: reservan espacio incluso sin imagen */
+.row .channel-logo{width:2.2rem;height:2rem;flex:none;margin-left:.45rem;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:.2rem;background:transparent}
+.row .channel-logo img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+.row .channel-logo.no-logo{width:.3rem;margin-left:.15rem}
 </style>
 </head>
 <body>
@@ -331,16 +385,10 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
 
  <aside id="drawer" class="fade" aria-label="Canales">
   <div class="d-secs">
+   <button class="sec" data-k="channels" aria-expanded="true"><span>Canales</span><span class="ct"></span></button>
    <button class="sec" data-k="country" aria-expanded="false"><span>País</span><span class="ct"></span></button>
    <button class="sec" data-k="lang" aria-expanded="false"><span>Idioma</span><span class="ct"></span></button>
    <button class="sec" data-k="cat" aria-expanded="false"><span>Categoría</span><span class="ct"></span></button>
-  </div>
-  <div class="d-panel" id="dPanel" hidden>
-   <div class="p-pick" id="pPick">
-    <div class="p-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="pQ" placeholder="Buscar" aria-label="Buscar en la lista"><button id="pClose" type="button" title="Cerrar filtros" aria-label="Cerrar filtros">×</button></div>
-    <div class="p-list" id="pList"></div>
-   </div>
-   <div class="p-top" id="pTop" hidden><div class="p-sel" id="pSel"></div><div class="p-btns"><button class="btn small" id="pClr">LIMPIAR</button><button class="btn small" id="pOk">LISTO</button></div></div>
   </div>
   <div class="d-bar">
    <div class="lights" role="group" aria-label="Estado de los canales">
@@ -354,6 +402,13 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
     <button class="ib" id="favBtn" title="Solo favoritos" aria-label="Solo favoritos" aria-pressed="false" data-ic="star"></button>
    </div>
   </div>
+  <div class="d-panel" id="dPanel" hidden>
+   <div class="p-pick" id="pPick">
+    <div class="p-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="pQ" placeholder="Buscar" aria-label="Buscar en filtros"></div>
+    <div class="p-top" id="pTop"><div class="p-sel" id="pSel"></div><button class="btn small" id="pClr">Limpiar</button></div>
+    <div class="p-list" id="pList"></div>
+   </div>
+  </div>
   <input id="search" placeholder="Buscar" aria-label="Buscar canal">
   <div id="channelList"></div>
  </aside>
@@ -361,6 +416,7 @@ html,body,button,a,input,select,textarea,[role="button"],[tabindex]{-webkit-tap-
  <div id="hud" class="fade">
   <div><div id="nowName">Sin canal</div><div id="nowMeta"></div></div>
   <div class="controls">
+   <button class="ib" id="mobileMenuBtn" title="Abrir canales y filtros" aria-label="Abrir canales y filtros" aria-expanded="false"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
    <button class="ib" id="prevBtn" title="Anterior (←)" data-ic="prev"></button>
    <button class="ib" id="playBtn" title="Play / Pausa (Espacio)"></button>
    <button class="ib" id="nextBtn" title="Siguiente (→)" data-ic="next"></button>
@@ -529,7 +585,7 @@ async function fetchText(url){
  try{const r=await fetch(url,{signal:ac.signal});if(!r.ok)throw Error('HTTP '+r.status);return await r.text()}finally{clearTimeout(t)}
 }
 const debounce=(f,ms)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>f(...a),ms)}};
-const saveData=debounce(()=>DB.set('chdata',{channels:[...chMap.values()],cnt,ccnt}),3000);
+const saveData=debounce(()=>DB.set('chdata',{channels:[...chMap.values()].filter(c=>(c.customIds||[]).length).map(c=>({...c,cts:[],lgs:[],source:'custom'}))}),3000);
 const saveSt=debounce(()=>DB.set('status',st),2000);
 const rebuild=()=>{channels=[...chMap.values()].sort((a,b)=>col.compare(a.name,b.name))};
 function onData(now){
@@ -539,56 +595,65 @@ function onData(now){
   if(!player.hidden){const a=document.activeElement;if(now||!(a&&a.closest&&a.closest('#channelList')))renderLive()}
  },now?0:1500);
 }
-const jobs={};
-function loadLang(code){
- return jobs[code]||(jobs[code]=(async()=>{
-  const items=parseM3U(await fetchText(BASE+'languages/'+code+'.m3u'));
-  const urls=new Set(items.map(p=>p.url));
-  for(const[u,c]of[...chMap]){if(c.lgs.includes(code)&&!urls.has(u)){c.lgs=c.lgs.filter(x=>x!==code);if(!c.lgs.length&&!(c.cts&&c.cts.length))chMap.delete(u)}}
-  items.forEach(p=>{
-   let c=chMap.get(p.url);
-   if(!c){c={url:p.url,lgs:[]};chMap.set(p.url,c)}
-   c.name=p.name;c.cats=p.cats;c.country=p.country;c.tvgId=p.tvgId||c.tvgId;c.tvgName=p.tvgName||c.tvgName;c.tvgLogo=p.tvgLogo||c.tvgLogo;c.tvgLanguage=p.tvgLanguage||c.tvgLanguage;if(!c.lgs.includes(code))c.lgs.push(code);
-  });
-  cnt[code]=items.length;saveData();onData();
- })().catch(e=>{delete jobs[code];if(/HTTP 404/.test(e.message)){cnt[code]=0;return}throw e}));
+/* Catálogo IPTV-org: canales, emisiones, streams y logos en JSON.
+   IndexedDB guarda una copia local; no se vuelven a descargar listas M3U de IPTV-org. */
+const CATALOG_TTL=24*60*60*1000;
+let catalogTask=null,catalogUpdated=0;
+function code3(v){const x=String(v||'').toLowerCase();return D2[x]||x}
+function asArray(v){return Array.isArray(v)?v:(v?[v]:[])}
+function normalizedCountry(v){return String(v||'').trim().toUpperCase()}
+function categoryNames(v){return asArray(v).map(x=>trCat(String(x))).filter(Boolean)}
+function makeCatalog(chs,feeds,streams,logos){
+ const byId=new Map(chs.filter(x=>x&&x.id).map(x=>[x.id,x]));
+ const feedBy=new Map();
+ for(const f of feeds){if(!f||!f.channel)continue;const a=feedBy.get(f.channel)||[];a.push(f);feedBy.set(f.channel,a)}
+ const logosBy=new Map();
+ for(const l of logos){if(!l||!l.channel||!l.url)continue;const a=logosBy.get(l.channel)||[];a.push(l);logosBy.set(l.channel,a)}
+ const result=new Map();
+ for(const x of streams){
+  if(!x||!x.channel||!/^https?:\/\//i.test(x.url||''))continue;
+  const meta=byId.get(x.channel);if(!meta)continue;
+  const fs=feedBy.get(x.channel)||[];
+  const matching=fs.filter(f=>!x.feed||f.id===x.feed);
+  const use=matching.length?matching:fs;
+  const lg=[...new Set([...asArray(meta.languages),...use.flatMap(f=>asArray(f.languages))].map(code3).filter(Boolean))];
+  const cc=normalizedCountry(meta.country);
+  const images=logosBy.get(x.channel)||[];
+  const logo=images.find(l=>x.feed&&l.feed===x.feed)?.url||images.find(l=>!l.feed)?.url||images[0]?.url||'';
+  const prev=result.get(x.url);
+  const c={url:x.url,name:meta.name||x.title||x.channel,cats:categoryNames(meta.categories).length?categoryNames(meta.categories):['Otros'],country:cc,cts:cc?[cc]:[],lgs:lg,tvgId:x.channel,tvgName:x.title||'',tvgLogo:logo,tvgLanguage:lg.join(';'),feed:x.feed||'',quality:x.quality||'',website:meta.website||'',network:meta.network||'',city:meta.city||'',subdivision:meta.subdivision||'',broadcastArea:asArray(meta.broadcast_area).join(', '),streamTitle:x.title||'',userAgent:x.user_agent||'',httpReferrer:x.http_referrer||'',source:'api',customIds:prev?.customIds||[]};
+  if(prev){c.lgs=[...new Set([...prev.lgs,...c.lgs])];c.cts=[...new Set([...prev.cts,...c.cts])];if(!c.tvgLogo)c.tvgLogo=prev.tvgLogo}
+  result.set(x.url,c);
+ }
+ return [...result.values()];
 }
-const jobsC={};
-function loadCountry(code){
- return jobsC[code]||(jobsC[code]=(async()=>{
-  const items=parseM3U(await fetchText(BASE+'countries/'+code.toLowerCase()+'.m3u'));
-  const urls=new Set(items.map(p=>p.url));
-  for(const[u,c]of[...chMap]){if((c.cts||[]).includes(code)&&!urls.has(u)){c.cts=c.cts.filter(x=>x!==code);if(!c.cts.length&&!c.lgs.length)chMap.delete(u)}}
-  items.forEach(p=>{
-   let c=chMap.get(p.url);
-   if(!c){c={url:p.url,lgs:[],cts:[]};chMap.set(p.url,c)}
-   c.name=p.name;c.cats=p.cats;c.country=p.country;c.tvgId=p.tvgId||c.tvgId;c.tvgName=p.tvgName||c.tvgName;c.tvgLogo=p.tvgLogo||c.tvgLogo;c.tvgLanguage=p.tvgLanguage||c.tvgLanguage;if(!c.cts)c.cts=[];if(!c.cts.includes(code))c.cts.push(code);
-  });
-  ccnt[code]=items.length;saveData();onData();
- })().catch(e=>{delete jobsC[code];if(/HTTP 404/.test(e.message)){ccnt[code]=0;return}throw e}));
+function applyCatalog(data){
+ if(!data||!Array.isArray(data.channels))return;
+ for(const [u,c] of chMap){if(c.source==='api'){if(c.customIds?.length){c.source='custom';c.cts=[];c.lgs=[]}else chMap.delete(u)}}
+ for(const c of data.channels){const old=chMap.get(c.url);if(old?.customIds?.length)c.customIds=[...new Set([...(c.customIds||[]),...old.customIds])];chMap.set(c.url,c)}
+ catalogUpdated=data.updated||0;
+ cnt={};ccnt={};for(const c of chMap.values())if(c.source==='api'){c.lgs.forEach(k=>cnt[k]=(cnt[k]||0)+1);c.cts.forEach(k=>ccnt[k]=(ccnt[k]||0)+1)}
+ rebuild();renderDrawer();saveData();
+}
+async function refreshCatalog(force=false){
+ if(catalogTask)return catalogTask;
+ if(!force&&catalogUpdated&&Date.now()-catalogUpdated<CATALOG_TTL)return;
+ catalogTask=(async()=>{
+  const names=['channels.json','feeds.json','streams.json','logos.json'];
+  batches++;total=4;done=0;prog();
+  try{
+   const data=await Promise.all(names.map(async name=>{const value=await getJSON(name);done++;prog();return value}));
+   const channels=makeCatalog(...data);
+   if(!channels.length)throw Error('El catálogo no contiene transmisiones');
+   const entry={channels,updated:Date.now()};
+   await DB.set('api-catalog-v1',entry);applyCatalog(entry);
+   toast('Catálogo actualizado: '+channels.length+' transmisiones');
+  }catch(e){toast('No se pudo actualizar IPTV-org. '+(chMap.size?'Se conserva la copia local.':'Reintentá cuando haya conexión.'));console.warn('IPTV-org',e)}
+  finally{batches--;total=done=0;prog();catalogTask=null}
+ })();return catalogTask;
 }
 function prog(){$('prog').style.width=(total?done/total*100:0)+'%';$('prog').hidden=!batches}
-/* Qué listas faltan bajar según la selección actual (force = todas las elegidas) */
-function needed(force){
- const out=[],cs=new Set(flt.allC?ctrs.map(x=>x.code):[...flt.ctrs]),ls=new Set(flt.allL?langs.map(x=>x.code):[...flt.langs]);
- if(force==='all'){Object.keys(ccnt).forEach(c=>{if(ccnt[c]>0)cs.add(c)});Object.keys(cnt).forEach(c=>{if(cnt[c]>0)ls.add(c)})}
- cs.forEach(c=>{if(force||ccnt[c]===undefined)out.push(['c',c])});
- ls.forEach(c=>{if(force||cnt[c]===undefined)out.push(['l',c])});
- return out;
-}
-/* Solo baja lo que el usuario eligió y todavía no tiene guardado. Nunca se llama solo al abrir la página. */
-async function loadNeeded(force){
- const list=needed(force);if(!list.length)return 0;
- if(force)list.forEach(([k,c])=>{delete(k==='c'?jobsC:jobs)[c]});
- batches++;total+=list.length;prog();
- let i=0,bad=0;
- const w=async()=>{while(i<list.length){const[k,c]=list[i++];try{await(k==='c'?loadCountry:loadLang)(c)}catch{bad++}done++;prog()}};
- await Promise.all([w(),w(),w(),w()]);
- if(!--batches){total=done=0}
- prog();DB.set('chdata',{channels:[...chMap.values()],cnt,ccnt});onData(true);
-  if(bad)toast('No se pudieron bajar '+bad+' lista(s). Probá actualizar de nuevo.');
- return bad;
-}
+async function loadNeeded(force){return refreshCatalog(!!force)}
 async function getLangs(force){
  if(langs.length&&!force)return;
  try{const r=await fetch(API+'languages.json');if(r.ok){const j=await r.json();const l=j.filter(x=>x&&x.code).map(x=>({code:x.code,name:x.name}));if(l.length){langs=l;store.set('pulsar-langs',l)}}}catch{}
@@ -598,7 +663,7 @@ const ISO='AD AE AF AG AI AL AM AO AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI 
 const trList=l=>[...new Set(l.map(trCat))];
 let cats=trList(store.get('pulsar-cats',[]));
 async function getJSON(name){
- const ac=new AbortController(),t=setTimeout(()=>ac.abort(),10000);
+ const ac=new AbortController(),t=setTimeout(()=>ac.abort(),90000);
  try{const r=await fetch(API+name,{signal:ac.signal});if(!r.ok)throw Error('HTTP '+r.status);return await r.json()}finally{clearTimeout(t)}
 }
 async function getCountries(force){
@@ -612,7 +677,8 @@ async function getCats(force){
 }
 /* al abrir la página: baja solo las listas de países, idiomas y categorías */
 function preloadLists(){
- Promise.all([getCountries(true),getLangs(true),getCats(true)]).then(()=>{if(panel==='country'||panel==='lang'||panel==='cat')renderPanel();if(flt.allC||flt.allL)loadNeeded()});
+ Promise.all([getCountries(),getLangs(),getCats()]).then(()=>{if(panel)renderPanel()});
+ refreshCatalog();
 }
 /* ---------- inicio: elegir país o idioma ---------- */
 const el=(t,c)=>{const e=document.createElement(t);if(c)e.className=c;return e};
@@ -647,13 +713,14 @@ let showAllLanguages=false;
 /* País · Idioma · Categoría */
 function renderSecs(){
  document.querySelectorAll('.sec').forEach(b=>{
-  const k=b.dataset.k,a=kAll(k),n=a&&flt[a]?'todos':(kSet(k).size+(k==='cat'?flt.custom.size:0))||'';
-  b.classList.toggle('open',panel===k);b.classList.toggle('has',!!n);b.setAttribute('aria-expanded',panel===k);
+  const k=b.dataset.k,a=k==='channels'?null:kAll(k),n=k==='channels'?'':a&&flt[a]?'todos':(kSet(k).size+(k==='cat'?flt.custom.size:0))||'';
+  b.classList.toggle('open',(panel||'channels')===k);b.classList.toggle('has',!!n);b.setAttribute('aria-expanded',(panel||'channels')===k);
   b.querySelector('.ct').textContent=n;
  });
 }
 async function openPanel(k,pick){
- if(panel===k&&!pick){closePanel();return}
+ if(k==='channels'){closePanel();return}
+ if(panel===k&&!pick){return}
  if(panel&&panel!==k)applyKind(panel);
  panel=k;pickOpen=!!pick;$('pQ').value='';if(k==='lang')showAllLanguages=false;
  renderSecs();renderPanel();
@@ -670,8 +737,8 @@ function renderPanel(){
 function renderSel(){
  const k=panel,set=kSet(k),a=kAll(k),box=$('pSel');box.innerHTML='';
  const chip=(t,fn)=>{const e=el('span','lchip lg'),s=el('span'),x=el('button','x');s.textContent=t;x.innerHTML=ic.x;x.title='Quitar '+t;x.setAttribute('aria-label','Quitar '+t);x.onclick=fn;e.append(s,x);box.append(e)};
- if(a&&flt[a])chip('Todos',()=>{flt[a]=false;renderSel();renderSecs();syncOpts()});
- else set.forEach(c=>chip(kName(k,c),()=>{set.delete(c);renderSel();renderSecs();syncOpts()}));
+ if(a&&flt[a])chip('Todos',()=>{flt[a]=false;renderSel();renderSecs();syncOpts();renderSt();renderRows();applyKind(k)});
+ else set.forEach(c=>chip(kName(k,c),()=>{set.delete(c);renderSel();renderSecs();syncOpts();renderSt();renderRows();applyKind(k)}));
  if(k==='cat')flt.custom.forEach(id=>{const item=customLists.find(x=>x.id===id);if(item)chip(item.name,()=>{flt.custom.delete(id);renderSel();renderSecs();syncOpts();renderRows()})});
  $('pTop').hidden=false;$('pClr').disabled=!box.children.length;
  saveView();
@@ -716,14 +783,12 @@ function toggleOpt(c){
  const k=panel,set=kSet(k),a=kAll(k);
  if(c==='*'){flt[a]=!flt[a];if(flt[a])set.clear()}
  else{if(a)flt[a]=false;set.has(c)?set.delete(c):set.add(c)}
- renderSel();renderSecs();syncOpts();
- if(c==='*'){renderSt();renderRows();loadNeeded()}
+ renderSel();renderSecs();syncOpts();renderSt();renderRows();
+ if(k==='country'||k==='lang')loadNeeded();
 }
 document.querySelectorAll('.sec').forEach(b=>b.onclick=()=>openPanel(b.dataset.k));
 $('pQ').addEventListener('input',fillPick);
-$('pOk').onclick=closePanel;
-$('pClose').onclick=()=>{closePanel();setDrawer(true)};
-$('pClr').onclick=()=>{if(!panel)return;const a=kAll(panel);if(a)flt[a]=false;kSet(panel).clear();if(panel==='cat')flt.custom.clear();renderSel();renderSecs();syncOpts();renderSt();renderRows()};
+$('pClr').onclick=()=>{if(!panel)return;const a=kAll(panel);if(a)flt[a]=false;kSet(panel).clear();if(panel==='cat')flt.custom.clear();renderSel();renderSecs();syncOpts();renderSt();renderRows();applyKind(panel)};
 
 /* luces de estado + favoritos */
 function renderSt(){
@@ -737,7 +802,7 @@ $('favBtn').onclick=()=>{flt.fav=!flt.fav;saveView();renderSt();renderRows()};
 const PAGE=300;let dots=new Map();
 function renderRows(){
  const box=$('channelList'),top=box.scrollTop;box.innerHTML='';dots=new Map();const vis=visible();
- if(!vis.length){box.innerHTML='<div class="none">'+(batches?'<div class="ring sm"></div>':!hasSel()&&!channels.length?'Elegí un país o idioma para cargar canales.':'Ningún canal encontrado')+'</div>';return}
+ if(!vis.length){box.innerHTML='<div class="none">'+(batches?'<div class="ring sm"></div>':!channels.length?'Descargando catálogo IPTV-org…':'Ningún canal encontrado')+'</div>';return}
  let shown=0;const more=el('button','more');
  const add=()=>{
   const frag=document.createDocumentFragment(),end=Math.min(vis.length,shown+PAGE);
@@ -761,7 +826,7 @@ function showChannelInfo(c){
  const grid=$('channelInfoContent');grid.replaceChildren();
  const field=(label,value,link=false)=>{if(!value)return;const l=el('div','info-label'),v=el('div','info-value');l.textContent=label;if(link){const a=document.createElement('a');a.href=value;a.target='_blank';a.rel='noopener noreferrer';a.textContent=value;v.append(a)}else v.textContent=value;grid.append(l,v)};
  field('Nombre',c.name);field('País',channelCountries(c));field('Idioma',channelLanguages(c));field('Categorías',(c.cats||[]).join(', '));
- field('ID IPTV',c.tvgId);field('Nombre EPG',c.tvgName);field('Logo',c.tvgLogo,true);
+ field('ID IPTV',c.tvgId);field('Feed',c.feed);field('Calidad',c.quality);field('Red',c.network);field('Ciudad',c.city);field('Región',c.subdivision);field('Área de emisión',c.broadcastArea);field('Sitio web',c.website,true);field('Título del stream',c.streamTitle);field('Nombre EPG',c.tvgName);field('Logo',c.tvgLogo,true);
  const sources=(c.customIds||[]).map(id=>customLists.find(x=>x.id===id)?.name).filter(Boolean);field('Listas propias',sources.join(', '));
  field('Estado',st[c.url]==='1'?'Online':st[c.url]==='0'?'No responde':'Sin probar');field('Favorito',fav.has(c.url)?'Sí':'No');field('URL de transmisión',c.url,true);
  $('channelInfoModal').classList.add('open');$('closeChannelInfo').focus();
@@ -771,11 +836,12 @@ $('channelInfoModal').addEventListener('click',e=>{if(e.target===$('channelInfoM
 function rowFor(c){
  const r=el('div','row'+(c.url===selId?' sel':''));r.dataset.u=c.url;
  const dot=el('span');paintDot(dot,c.url);dots.set(c.url,dot);
+ const logo=el('span','channel-logo');if(c.tvgLogo&&/^https?:\/\//i.test(c.tvgLogo)){const img=new Image();img.loading='lazy';img.alt='';img.referrerPolicy='no-referrer';img.src=c.tvgLogo;img.onerror=()=>{img.remove();logo.classList.add('no-logo')};logo.append(img)}else logo.classList.add('no-logo');
  const pick=el('button','pick');pick.innerHTML='<span class="nm"></span>';pick.firstChild.textContent=c.name;const meta=channelMeta(c);if(meta){const m=el('span','channel-meta');m.textContent=meta;pick.append(m)}
  pick.onclick=()=>{playChannel(c.url);if(innerWidth<=650)setDrawer(false)};
  const f=el('button','mini fav'+(fav.has(c.url)?' on':''));f.textContent=fav.has(c.url)?'★':'☆';f.title='Favorito';
  f.onclick=e=>{e.stopPropagation();fav.has(c.url)?fav.delete(c.url):fav.add(c.url);store.set('pulsar-fav',[...fav]);f.classList.toggle('on',fav.has(c.url));f.textContent=fav.has(c.url)?'★':'☆';if(flt.fav)renderRows()};
- const info=el('button','info-btn');info.textContent='ⓘ';info.title='Información del canal';info.setAttribute('aria-label','Información de '+c.name);info.onclick=e=>{e.stopPropagation();showChannelInfo(c)};r.append(dot,pick,info,f);return r;
+ const info=el('button','info-btn');info.textContent='ⓘ';info.title='Información del canal';info.setAttribute('aria-label','Información de '+c.name);info.onclick=e=>{e.stopPropagation();showChannelInfo(c)};r.append(dot,logo,pick,info,f);return r;
 }
 function markSelected(){document.querySelectorAll('#channelList .row').forEach(r=>r.classList.toggle('sel',r.dataset.u===selId))}
 $('search').addEventListener('input',e=>{flt.q=e.target.value;renderSt();renderRows()});
@@ -799,10 +865,10 @@ let chk=null;
 function paintChk(){const b=$('refBtn');b.classList.toggle('busy',!!chk);b.title=chk?'Cancelar':'Actualizar todo (listas y estado)';$('refTxt').textContent=chk?(chk.total?chk.done+'/'+chk.total:'…'):''}
 async function refreshEverything(){
  if(chk){chk.stop=true;return}
- if(!hasSel()&&!channels.length){toast('Elegí un país o idioma primero');return}
+ if(!channels.length){toast('El catálogo todavía no está disponible');return}
  const job=chk={stop:false,done:0,total:0};paintChk();
  try{
-  await loadNeeded(true);rebuild();renderLive();
+  await refreshCatalog(true);rebuild();renderLive();
   if(job.stop)return;
   const list=channels.filter(c=>(isRegular(c)&&langMatch(c)&&catMatch(c))||isCustomSelected(c));
   if(!list.length){toast('No hay canales para verificar');return}
@@ -898,7 +964,7 @@ function renderCustomManage(){
   update.onclick=()=>importCustomList(x,true);remove.onclick=()=>{
    if(!confirm('¿Eliminar la lista «'+x.name+'»?'))return;
    customLists=customLists.filter(y=>y.id!==x.id);flt.custom.delete(x.id);
-   for(const [u,c] of chMap){c.customIds=(c.customIds||[]).filter(id=>id!==x.id);if(!c.customIds.length&&!c.lgs.length&&!(c.cts||[]).length)chMap.delete(u)}
+   for(const [u,c] of chMap){c.customIds=(c.customIds||[]).filter(id=>id!==x.id);if(!c.customIds.length&&!(c.lgs||[]).length&&!(c.cts||[]).length)chMap.delete(u)}
    store.set('pulsar-custom-lists',customLists);saveView();saveData();onData(true);renderCustomManage();renderDrawer();
   };r.append(name,update,remove);box.append(r)
  })
@@ -909,7 +975,7 @@ async function importCustomList(item,refresh=false){
   const txt=await fetchText(item.url),items=parseM3U(txt);
   if(!items.length)throw Error('No se encontraron canales válidos en la lista M3U.');
   const urls=new Set(items.map(x=>x.url));
-  for(const[u,c]of chMap){if((c.customIds||[]).includes(item.id)&&!urls.has(u)){c.customIds=c.customIds.filter(id=>id!==item.id);if(!c.customIds.length&&!c.lgs.length&&!(c.cts||[]).length)chMap.delete(u)}}
+  for(const[u,c]of chMap){if((c.customIds||[]).includes(item.id)&&!urls.has(u)){c.customIds=c.customIds.filter(id=>id!==item.id);if(!c.customIds.length&&!(c.lgs||[]).length&&!(c.cts||[]).length)chMap.delete(u)}}
   items.forEach(x=>{let c=chMap.get(x.url);if(!c){c={url:x.url,name:x.name,cats:x.cats,country:x.country,lgs:[],cts:[],customIds:[]};chMap.set(x.url,c)}if(!c.customIds)c.customIds=[];if(!c.customIds.includes(item.id))c.customIds.push(item.id)});
   if(!refresh){customLists.push(item);flt.custom.add(item.id)}
   store.set('pulsar-custom-lists',customLists);saveView();saveData();onData(true);renderCustomManage();renderDrawer();
@@ -937,15 +1003,15 @@ $('settingsBtn').onclick=async()=>{
 $('closeSettings').onclick=closeSettings;
 $('refreshAll').onclick=async()=>{
  closeSettings();
- if(!Object.keys(cnt).length&&!Object.keys(ccnt).length&&!hasSel()){toast('Todavía no hay canales para actualizar');return}
+ if(!channels.length){toast('Todavía no hay canales para actualizar');return}
  toast('Actualizando todos los canales…');
- await loadNeeded('all');rebuild();renderLive();
+ await refreshCatalog(true);rebuild();renderLive();
 };
 $('wipeAll').onclick=()=>{
  if(!confirm('¿Borrar los datos? Se borran los canales, estados y filtros guardados.'))return;
  stopVideo();selId=null;
  chMap.clear();cnt={};ccnt={};st={};channels=[];
- Object.keys(jobs).forEach(k=>delete jobs[k]);Object.keys(jobsC).forEach(k=>delete jobsC[k]);
+ catalogUpdated=0;DB.set('api-catalog-v1',null);
  flt.ctrs.clear();flt.langs.clear();flt.cats.clear();flt.custom.clear();customLists=[];store.set('pulsar-custom-lists',[]);flt.allC=flt.allL=false;flt.fav=false;flt.q='';$('search').value='';
  DB.set('chdata',null);DB.set('status',{});saveView();
  closeSettings();renderDrawer();newSearch();toast('Datos borrados');
@@ -1003,7 +1069,8 @@ document.addEventListener('keydown',e=>{
 /* ---------- arranque ---------- */
 (async()=>{
  const d=await DB.get('chdata');
- if(d&&Array.isArray(d.channels)){d.channels.forEach(c=>{if(c&&c.url&&Array.isArray(c.lgs)&&Array.isArray(c.cats))chMap.set(c.url,c)});cnt=d.cnt||{};ccnt=d.ccnt||{}}
+ if(d&&Array.isArray(d.channels)){d.channels.forEach(c=>{if(c&&c.url&&Array.isArray(c.customIds)&&c.customIds.length){c.lgs=[];c.cts=[];c.source='custom';chMap.set(c.url,c)}})}
+ const cachedCatalog=await DB.get('api-catalog-v1');if(cachedCatalog)applyCatalog(cachedCatalog);
  st=(await DB.get('status'))||{};
  rebuild();
  const v=store.get('pulsar-view',null)||{};
@@ -1012,7 +1079,7 @@ document.addEventListener('keydown',e=>{
  renderDrawer();
  preloadLists();
  const last=v.last&&chMap.has(v.last)?v.last:null;
- if(hasSel()&&!flt.allC&&!flt.allL)loadNeeded(); // 'Todos' se carga tras obtener el catálogo completo
+ // El catálogo JSON se actualiza de forma independiente de los filtros.
  if(last){wake();playChannel(last)}
  setDrawer(true);
  if(!hasSel()&&!chMap.size)openPanel('country',true)
@@ -1023,6 +1090,25 @@ document.addEventListener('keydown',e=>{
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(() => {}));
 }
+</script>
+<script>
+// En retrato, las cuatro pestañas pasan al encabezado y siguen siendo operativas.
+(function(){
+ const tabs=document.querySelector('#drawer .d-secs'),drawer=document.getElementById('drawer'),top=document.getElementById('topbar'),menu=document.getElementById('mobileMenuBtn');
+ if(!tabs||!drawer||!top||!menu)return;
+ const anchor=document.createComment('Ubicación original de pestañas');tabs.parentNode.insertBefore(anchor,tabs);
+ const portrait=()=>window.matchMedia('(max-width:650px) and (orientation:portrait)').matches;
+ function sync(){
+  if(portrait()){if(tabs.parentNode!==top)top.appendChild(tabs)}
+  else if(tabs.parentNode!==drawer)anchor.parentNode.insertBefore(tabs,anchor.nextSibling);
+  menu.setAttribute('aria-expanded',drawer.classList.contains('open')?'true':'false');
+ }
+ menu.addEventListener('click',()=>{setDrawer(!drawerOpen());sync()});
+ tabs.addEventListener('click',e=>{if(portrait()&&e.target.closest('.sec')&&!drawerOpen()){setDrawer(true);sync()}});
+ const obs=new MutationObserver(()=>menu.setAttribute('aria-expanded',drawer.classList.contains('open')?'true':'false'));
+ obs.observe(drawer,{attributes:true,attributeFilter:['class']});
+ window.addEventListener('resize',sync);window.addEventListener('orientationchange',sync);sync();
+})();
 </script>
 </body>
 </html>
